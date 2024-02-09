@@ -1,6 +1,25 @@
 spring:
+  profiles.active: test
   mvc.pathmatch.matching-strategy: ANT_PATH_MATCHER
+
+---
+
+spring.config.activate.on-profile: prod
+auth:
+  jwt:
+    secret-key: ${jwt-secret-key}
+    expire-length: ${jwt-validity}
+  kakao:
+    clientId: ${kakao-client-id}
+    redirectURI: ${kakao-redirect-uri}
+
+---
+
+spring.config.activate.on-profile: test
 auth:
   jwt:
     secret-key: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     expire-length: 3600000
+  kakao:
+    clientId: 1234567890abcdefghijklmnop
+    redirectURI: http://localhost:8080/redirect
