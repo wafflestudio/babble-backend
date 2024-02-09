@@ -1,0 +1,6 @@
+spring:
+  mvc.pathmatch.matching-strategy: ANT_PATH_MATCHER
+auth:
+  jwt:
+    secret-key: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    expire-length: 3600000
