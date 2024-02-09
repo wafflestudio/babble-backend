@@ -26,4 +26,8 @@ public class Member {
 
     @Column(unique = true)
     private Long kakaoAuthId;
+
+    public static Member create(String userId, Long kakaoAuthId) {
+        return new Member(0L, userId, kakaoAuthId);
+    }
 }

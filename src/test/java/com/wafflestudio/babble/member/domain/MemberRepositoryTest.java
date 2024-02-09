@@ -25,9 +25,9 @@ public class MemberRepositoryTest {
     @Test
     @DisplayName("개별 회원은 고유한 ID로 식별되며, 소셜 로그인 계정 ID는 선택사항이다.")
     void userIdAndAuthId() {
-        memberRepository.save(new Member(null, "abc123", null));
-        memberRepository.save(new Member(null, "abc124", 12345678L));
-        memberRepository.save(new Member(null, "abc125", 12345679L));
+        memberRepository.save(Member.create("abc123", null));
+        memberRepository.save(Member.create("abc124", 12345678L));
+        memberRepository.save(Member.create("abc125", 12345679L));
         entityManager.clear();
 
         List<Member> members = memberRepository.findAll();
