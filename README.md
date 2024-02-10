@@ -23,3 +23,22 @@ REDIRECT_URI=http://localhost:0000/xxxx
 ```bash
 make docker_run_dev
 ```
+
+## API Document
+
+API 명세는 개발 서버 실행 후 Swagger UI 페이지를 참고합니다.
+
+- http://localhost:8080/swagger-ui/
+
+별도로 Postman을 셋업할 필요 없이,
+해당 페이지를 통해 실제로 개발 서버로 요청을 보내고, 응답을 확인할 수 있습니다.
+
+### Authorize
+
+카카오 소셜로그인을 통해 받은 인가 코드로 로그인에 성공하면 엑세스 토큰을 발급받습니다.
+
+Authorize 버튼을 통해 해당 토큰을 페이지에 등록하면, 모든 요청들의 Authorization 헤더에 해당 토큰이 자동으로 추가됩니다.
+
+```
+Authorization: Bearer xxx.yyy.zzz
+```
