@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import com.wafflestudio.babble.common.exception.UnauthenticatedException;
 
-@DisplayName("JwtTokenService 클래스에서")
 class JwtTokenServiceTest {
 
     public static final String SECRET_KEY = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";

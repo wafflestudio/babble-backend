@@ -19,7 +19,6 @@ import com.wafflestudio.babble.member.domain.Member;
 import com.wafflestudio.babble.member.domain.MemberRepository;
 import com.wafflestudio.babble.testutil.ServiceTest;
 
-@DisplayName("AuthService 클래스의")
 public class MemberServiceTest extends ServiceTest {
 
     @PersistenceContext
