@@ -7,11 +7,22 @@ spring:
 spring.config.activate.on-profile: prod
 auth:
   jwt:
-    secret-key: ${jwt-secret-key}
-    expire-length: ${jwt-validity}
+    secret-key: ${JWT_SECRET_KEY}
+    expire-length: ${JWT_VALIDITY}
   kakao:
-    clientId: ${kakao-client-id}
-    redirectURI: ${kakao-redirect-uri}
+    clientId: ${KAKAO_CLIENT_ID}
+    redirectURI: ${KAKAO_REDIRECT_URI}
+
+---
+
+spring.config.activate.on-profile: dev
+auth:
+  jwt:
+    secret-key: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    expire-length: 3600000
+  kakao:
+    clientId: ${KAKAO_CLIENT_ID}
+    redirectURI: http://localhost:8080/redirect
 
 ---
 
