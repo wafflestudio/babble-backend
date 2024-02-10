@@ -14,6 +14,7 @@ git clone https://github.com/wafflestudio/babble-server
 ```
 PROFILE=dev
 CLIENT_ID=XXXXXXXXXXXX
+REDIRECT_URI=http://localhost:0000/xxxx
 ```
 
 [Docker Desktop](https://www.docker.com/products/docker-desktop/)을 설치하고 실행합니다.

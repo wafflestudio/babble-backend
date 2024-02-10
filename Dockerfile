@@ -6,4 +6,4 @@ WORKDIR /babble-server
 
 RUN	./gradlew build
 
-CMD ["nohup", "java", "-jar", "-Dspring.profiles.active=${PROFILE}", "-DKAKAO_CLIENT_ID=${CLIENT_ID}", "/babble-server/build/libs/babble-0.0.1.jar", "&"]
+CMD ["nohup", "java", "-jar", "-Dspring.profiles.active=${PROFILE}", "-DKAKAO_CLIENT_ID=${CLIENT_ID}", "-DKAKAO_REDIRECT_URI=${REDIRECT_URI}", "/babble-server/build/libs/babble-0.0.1.jar", "&"]

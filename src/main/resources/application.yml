@@ -22,7 +22,7 @@ auth:
     expire-length: 3600000
   kakao:
     clientId: ${KAKAO_CLIENT_ID}
-    redirectURI: http://localhost:8080/redirect
+    redirectURI: ${KAKAO_REDIRECT_URI}
 
 ---
 
