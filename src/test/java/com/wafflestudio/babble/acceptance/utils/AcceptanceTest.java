@@ -29,4 +29,8 @@ public class AcceptanceTest {
         RestAssured.port = port;
         databaseCleaner.execute();
     }
+
+    protected TestClient createTestClient() {
+        return new TestClient(kakaoService);
+    }
 }
