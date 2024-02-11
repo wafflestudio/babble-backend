@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/chat")
-public class ChatController {
+public class ChatController implements SwaggerChatController {
 
     private final ChatService chatService;
 
