@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/auth")
-public class AuthController {
+public class AuthController implements SwaggerAuthController {
 
     private final KakaoService kakaoService;
     private final JwtTokenService jwtTokenService;
