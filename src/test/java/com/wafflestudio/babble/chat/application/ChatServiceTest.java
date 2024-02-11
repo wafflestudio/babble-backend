@@ -18,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.wafflestudio.babble.chat.application.dto.ChatRoomResponseDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatRoomDto;
 import com.wafflestudio.babble.chat.domain.ChatRoom;
 import com.wafflestudio.babble.chat.domain.ChatRoomRepository;
@@ -58,6 +59,23 @@ public class ChatServiceTest extends ServiceTest {
         assertThat(room.getManagerId()).isEqualTo(newMember.getId());
         assertThat(chatter.getRoomId()).isEqualTo(roomId);
         assertThat(chatter.getMemberId()).isEqualTo(newMember.getId());
+    }
+
+    @Test
+    @DisplayName("현재 위치를 기준으로 채팅방 목록을 조회한다")
+    void getNearbyRoomsTest() {
+        memberRepository.save(Member.create(USER_ID, KAKAO_AUTH_ID));
+        Long room1 = chatService.createChatRoom(CreateChatRoomDto.of(USER_ID, NICKNAME, ROOM_NAME, HASHTAG, 10.0d, 10.0d));
+        Long room2 = chatService.createChatRoom(CreateChatRoomDto.of(USER_ID, NICKNAME, ROOM_NAME, HASHTAG, 10.1d, 10.0d));
+        Long room3 = chatService.createChatRoom(CreateChatRoomDto.of(USER_ID, NICKNAME, ROOM_NAME, HASHTAG, 10.0d, 10.1d));
+
+        // TODO: 위치 기반 필터링 구현 후 테스트도 수정하기
+        List<ChatRoomResponseDto> rooms = chatService.getNearbyRooms(10.0d, 10.0d);
+
+        assertThat(rooms.size()).isEqualTo(3);
+        assertThat(rooms.get(0).getId()).isEqualTo(room1);
+        assertThat(rooms.get(1).getId()).isEqualTo(room2);
+        assertThat(rooms.get(2).getId()).isEqualTo(room3);
     }
 
     private ChatRoom getChatRoom() {
