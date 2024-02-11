@@ -14,8 +14,8 @@ public class AuthAcceptanceTest extends AcceptanceTest {
     @DisplayName("새로운 유저가 로그인을 하면 회원이 생성되고 토큰을 발급한다.")
     @Test
     void signupWithLogin() {
-        TestClient testClient = createTestClient();
-        String accessToken = testClient.loginSuccess(KAKAO_AUTH_ID);
+        TestClient client = createTestClient();
+        String accessToken = client.loginSuccess(KAKAO_AUTH_ID);
         assertThat(accessToken).isNotBlank();
     }
 }

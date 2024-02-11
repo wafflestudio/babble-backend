@@ -26,6 +26,7 @@ public class ChatService {
     private final ChatterRepository chatterRepository;
     private final MemberRepository memberRepository;
 
+    @Transactional(readOnly = true)
     public List<ChatRoomResponseDto> getNearbyRooms(Double latitude, Double longitude) {
         // TODO: 거리가 가까운 방들만 필터링하기!
         return chatRoomRepository.findAll().stream()

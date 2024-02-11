@@ -3,6 +3,8 @@ package com.wafflestudio.babble.acceptance.utils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
+import java.util.List;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -10,6 +12,8 @@ import org.springframework.http.MediaType;
 import com.wafflestudio.babble.auth.application.KakaoService;
 import com.wafflestudio.babble.auth.presentation.dto.LoginResponse;
 import com.wafflestudio.babble.chat.presentation.dto.CreateChatRoomRequest;
+import com.wafflestudio.babble.chat.presentation.dto.NearByChatRoomsResponse;
+import com.wafflestudio.babble.chat.presentation.dto.NearByChatRoomsResponse.ChatRoomResponse;
 
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -55,5 +59,19 @@ public class TestClient {
         String location = response.header(HttpHeaders.LOCATION);
         assertThat(location).isNotBlank();
         return location;
+    }
+
+    public List<ChatRoomResponse> getNearbyRooms(Double latitude, Double longitude) {
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+            .auth().oauth2(this.accessToken)
+            .param("latitude", latitude)
+            .param("longitude", longitude)
+            .when()
+            .get("/api/chat/rooms")
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        return response.as(NearByChatRoomsResponse.class).getRooms();
     }
 }
