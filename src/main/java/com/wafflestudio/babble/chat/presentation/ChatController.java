@@ -21,11 +21,11 @@ public class ChatController implements SwaggerChatController {
 
     private final ChatService chatService;
 
-    @PostMapping("/room")
+    @PostMapping("/rooms")
     public ResponseEntity<Void> createRoom(@AuthUserId String authId,
                                            @RequestBody CreateChatRoomRequest requestBody) {
         Long createdId = chatService.createChatRoom(requestBody.toDto(authId));
-        URI location = URI.create("/api/chat/room/" + createdId);
+        URI location = URI.create("/api/chat/rooms/" + createdId);
         return ResponseEntity.created(location).build();
     }
 }

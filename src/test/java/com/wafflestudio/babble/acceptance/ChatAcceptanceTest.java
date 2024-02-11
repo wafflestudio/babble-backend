@@ -23,7 +23,7 @@ public class ChatAcceptanceTest extends AcceptanceTest {
         TestClient testClient = createTestClient();
         testClient.loginSuccess(KAKAO_AUTH_ID);
         String location = testClient.createRoom(new CreateChatRoomRequest(NICKNAME, ROOM_NAME, HASHTAG, LATITUDE, LONGITUDE));
-        assertThat(location).isEqualTo("/api/chat/room/1");
+        assertThat(location).isEqualTo("/api/chat/rooms/1");
         // TODO: 채팅방 조회 로직 추가
     }
 }

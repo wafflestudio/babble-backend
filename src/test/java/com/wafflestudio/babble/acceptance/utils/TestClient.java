@@ -47,7 +47,7 @@ public class TestClient {
             .body(data)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .when()
-            .post("/api/chat/room")
+            .post("/api/chat/rooms")
             .then().log().all()
             .extract();
 
