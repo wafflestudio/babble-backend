@@ -45,7 +45,7 @@ public class ChatServiceTest extends ServiceTest {
     private MemberRepository memberRepository;
 
     @Test
-    @DisplayName("새로운 채팅방을 생성하면서 관리자를 생성한다")
+    @DisplayName("새로운 채팅방을 생성하면서 방장 역할의 참여자를 생성한다")
     void createChatRoomTest() {
         Member newMember = memberRepository.save(Member.create(USER_ID, KAKAO_AUTH_ID));
 
