@@ -1,7 +1,5 @@
 package com.wafflestudio.babble.common.domain;
 
-import java.time.LocalDateTime;
-
 import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
@@ -19,9 +17,9 @@ public abstract class BaseEntity {
 
     @CreatedDate
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private Long createdAt;
 
     @LastModifiedDate
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private Long updatedAt;
 }

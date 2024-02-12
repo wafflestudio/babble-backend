@@ -11,12 +11,13 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import com.wafflestudio.babble.common.config.DatabaseConfig;
+import com.wafflestudio.babble.common.config.TimeConfig;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({DatabaseConfig.class, DatabaseCleaner.class})
+@Import({DatabaseConfig.class, TimeConfig.class, DatabaseCleaner.class})
 @ExtendWith(DataClearExtension.class)
 public @interface RepositoryTest {
 }

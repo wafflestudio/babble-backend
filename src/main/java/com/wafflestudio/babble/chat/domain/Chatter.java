@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.wafflestudio.babble.common.domain.BaseEntity;
 import com.wafflestudio.babble.member.domain.Member;
 
 import lombok.AccessLevel;
@@ -20,7 +21,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Chatter {
+public class Chatter extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,5 +48,10 @@ public class Chatter {
 
     public Long getMemberId() {
         return member.getId();
+    }
+
+    public void updateNickname(String nickname) {
+         // TODO: 세부 규칙이 정해지면, 정규표현식으로 예외 처리하기
+        this.nickname = nickname;
     }
 }
