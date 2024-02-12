@@ -11,6 +11,7 @@ import com.wafflestudio.babble.chat.presentation.dto.NearByChatRoomsResponse;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import springfox.documentation.annotations.ApiIgnore;
 
 public interface SwaggerChatController {
 
@@ -30,7 +31,7 @@ public interface SwaggerChatController {
     ResponseEntity<Void> createRoom(String authId, CreateChatRoomRequest requestBody);
 
     @ApiOperation(value = "특정 채팅방에 입장하며 본인의 참여 여부와 최근 채팅들을 조회한다.")
-    ResponseEntity<GetChatRoomResponse> getChatRoom(String authId, Long roomId, Double latitude, Double longitude);
+    ResponseEntity<GetChatRoomResponse> getChatRoom(@ApiIgnore String authId, Long roomId, Double latitude, Double longitude);
 
     @ApiOperation(value = "본인이 참여 중인 채팅방에서 채팅을 생성한다.")
     @ApiImplicitParams({
@@ -39,5 +40,5 @@ public interface SwaggerChatController {
             required = true,
             paramType = "body", dataTypeClass = CreateChatRequest.class)
     })
-    ResponseEntity<ChatResponse> createChat(String authId, Long roomId, CreateChatRequest requestBody);
+    ResponseEntity<ChatResponse> createChat(@ApiIgnore String authId, Long roomId, CreateChatRequest requestBody);
 }
