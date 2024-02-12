@@ -9,12 +9,11 @@ git clone https://github.com/wafflestudio/babble-server
 ```
 
 로컬에서 해당 프로젝트를 실행하기 위해 필요한 환경변수들은 `.env.dev` 파일에서 관리합니다.
-해당 파일 생성 후 아래와 같이 dev 환경에서 실행하기 위해 필요한 환경변수들을 추가합니다. ([application.yml](./src/main/resources/application.yml) 참고)
+해당 파일 생성 후 어떤 환경에서 실행할 것인지를 `PROFILE` 변수로 지정하고,
+해당 환경에서 실행하기 위해 필요한 환경변수가 있을 경우 추가합니다. ([application.yml](./src/main/resources/application.yml) 참고)
 
 ```
 PROFILE=dev
-CLIENT_ID=XXXXXXXXXXXX
-REDIRECT_URI=http://localhost:0000/xxxx
 ```
 
 [Docker Desktop](https://www.docker.com/products/docker-desktop/)을 설치하고 실행합니다.

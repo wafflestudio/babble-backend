@@ -25,8 +25,8 @@ public class AuthController implements SwaggerAuthController {
     private final MemberService memberService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestParam String code) {
-        long kakaoAuthId = kakaoService.getAuthId(code);
+    public ResponseEntity<LoginResponse> login(@RequestParam String token) {
+        long kakaoAuthId = kakaoService.getUserId(token);
         MemberDto member = memberService.getOrCreateMember(kakaoAuthId);
         String accessToken = jwtTokenService.createToken(member.getUserId(), TimeUtils.getCurrentUnixTimestamp());
         return ResponseEntity.ok(new LoginResponse(accessToken));

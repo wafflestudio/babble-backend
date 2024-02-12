@@ -33,11 +33,11 @@ public class TestClient {
     }
 
     public String loginSuccess(Long kakaoAuthId) {
-        String code = "kakaoAuthCode";
-        given(mockedKakaoService.getAuthId(code)).willReturn(kakaoAuthId);
+        String token = "token";
+        given(mockedKakaoService.getUserId(token)).willReturn(kakaoAuthId);
         ExtractableResponse<Response> response = RestAssured.given().log().all()
             .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-            .param("code", code)
+            .param("token", token)
             .when()
             .post("/api/auth/login")
             .then().log().all()
