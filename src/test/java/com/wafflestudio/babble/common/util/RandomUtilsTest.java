@@ -17,11 +17,11 @@ import com.wafflestudio.babble.common.utils.RandomUtils;
 public class RandomUtilsTest {
 
     @Nested
-    @DisplayName("generateRandomAlphanumericString 메서드는")
+    @DisplayName("임의의 문자열을 생성하면")
     class GenerateRandomAlphanumericStringTest {
 
         @Test
-        @DisplayName("영문자와 숫자로 구성된 문자열을 임의로 생성한다.")
+        @DisplayName("영문자와 숫자로 구성된다")
         void regexTest() {
             Pattern pattern = Pattern.compile("^[a-zA-Z0-9]{1,6}$");
 
@@ -32,7 +32,7 @@ public class RandomUtilsTest {
         }
 
         @Test
-        @DisplayName("호출될 때마다 중복되지 않는 새로운 문자열들을 임의로 생성한다.")
+        @DisplayName("이전에 생성된 문자열과 중복되지 않는다")
         void noDuplicatesTest() {
             HashSet<String> set = new HashSet<>();
             int count = 20;
@@ -44,7 +44,7 @@ public class RandomUtilsTest {
         }
 
         @ParameterizedTest
-        @DisplayName("지정된 길이만큼의 글자수로 구성된 문자열을 생성한다")
+        @DisplayName("지정된 길이만큼의 글자수로 구성된다")
         @ValueSource(ints = {1, 5, 50})
         void lengthTest(int length) {
             String generatedString = RandomUtils.generateRandomAlphanumericString(length);
