@@ -15,7 +15,6 @@ public class ChatDto {
     private final Long id;
     private final Long chatterId;
     private final String chatterNickname;
-    // TODO: private final String chatterColor;
     private final String content;
     private final Long createdTimeInSec;
 

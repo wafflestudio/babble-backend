@@ -2,6 +2,7 @@ package com.wafflestudio.babble.chat.application;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -39,13 +40,17 @@ public class ChatService {
     public ChatRoomDetailDto getChatRoom(GetChatRoomDto dto) {
         ChatRoom chatRoom = chatRoomRepository.get(dto.getRoomId());
         // TODO: 거리가 너무 먼 경우에 대한 ForbiddenException 예외 처리 추가
-        boolean isChatter = chatterRepository.existsByRoomIdAndUserId(chatRoom.getId(), dto.getAuthUserId());
         // TODO: 최근 N개만 보여주도록 수정?
         List<ChatDto> chats = chatRepository.findAll().stream()
             .sorted(ChatService::sortByCreatedAtAndIdDesc)
             .map(chat -> ChatDto.of(chat, chat.getChatter()))
             .collect(Collectors.toList());
-        return ChatRoomDetailDto.of(chatRoom, isChatter, chats);
+        Optional<Chatter> chatter = chatterRepository.findByRoomIdAndUserId(chatRoom.getId(), dto.getAuthUserId());
+        int chatterCount = chatterRepository.countByRoom(chatRoom);
+        if (chatter.isEmpty()) {
+            return ChatRoomDetailDto.ofVisitor(chatRoom, chatterCount, chats);
+        }
+        return ChatRoomDetailDto.ofChatter(chatRoom, chatter.get().getId(), chatterCount, chats);
     }
 
     private static int sortByCreatedAtAndIdDesc(Chat a, Chat b) {

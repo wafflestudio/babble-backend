@@ -23,5 +23,14 @@ public interface ChatterRepository extends JpaRepository<Chatter, Long> {
         + "WHERE c.room.id = :roomId AND c.member.userId = :userId")
     int countByRoomIdAndUserId(@Param("roomId") Long roomId, @Param("userId") String userId);
 
+    int countByRoom(ChatRoom room);
+
+    @Query("SELECT c "
+        + "FROM Chatter c "
+        + "JOIN c.room "
+        + "JOIN c.member "
+        + "WHERE c.room.id = :roomId AND c.member.userId = :userId")
+    Optional<Chatter> findByRoomIdAndUserId(@Param("roomId") Long roomId, @Param("userId") String userId);
+
     Optional<Chatter> findByRoomAndMember(ChatRoom room, Member member);
 }

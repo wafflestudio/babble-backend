@@ -65,6 +65,7 @@ public class ChatAcceptanceTest extends AcceptanceTest {
             assertThat(response.getRoom().getId()).isEqualTo(roomId);
             assertThat(response.getIsChatter()).isTrue();
             checkRoom(response.getRoom());
+            assertThat(response.getChatterCount()).isEqualTo(1);
             assertThat(response.getChats()).hasSize(3);
             assertThat(response.getChats().get(0)).isEqualTo(chat3);
             assertThat(response.getChats().get(1)).isEqualTo(chat2);
@@ -73,7 +74,7 @@ public class ChatAcceptanceTest extends AcceptanceTest {
 
         @DisplayName("다른 유저는 해당 채팅방에 들어가면 아직 참여 중이지 않다고 뜨며 채팅을 만들 수도 없다")
         @Test
-        void outsider() {
+        void visitor() {
             TestClient anotherMember = createTestClient();
             anotherMember.loginSuccess(KAKAO_AUTH_ID + 1L);
 
@@ -81,10 +82,31 @@ public class ChatAcceptanceTest extends AcceptanceTest {
             assertThat(response.getRoom().getId()).isEqualTo(roomId);
             assertThat(response.getIsChatter()).isFalse();
             checkRoom(response.getRoom());
+            assertThat(response.getChatterCount()).isEqualTo(1);
             assertThat(response.getChats()).hasSize(0);
 
             ExtractableResponse<Response> errorResponse = anotherMember.createChat(roomId, new CreateChatRequest("안녕하세요!", LATITUDE, LONGITUDE));
             assertThat(errorResponse.statusCode()).isEqualTo(HttpStatus.FORBIDDEN.value());
+        }
+
+        @DisplayName("채팅을 만들면 어떤 것이 본인의 채팅인지 구분할 수 있다")
+        @Test
+        void isMine() {
+            ChatResponse chat = manager.createChatSuccess(roomId, new CreateChatRequest("안녕하세요!", LATITUDE, LONGITUDE));
+            TestClient anotherMember = createTestClient();
+            anotherMember.loginSuccess(KAKAO_AUTH_ID + 1L);
+
+            GetChatRoomResponse response = manager.getChatRoom(roomId, LATITUDE, LONGITUDE);
+            assertThat(response.getRoom().getId()).isEqualTo(roomId);
+            assertThat(response.getChats()).hasSize(1);
+            assertThat(response.getChats().get(0).getId()).isEqualTo(chat.getId());
+            assertThat(response.getChats().get(0).getIsMine()).isTrue();
+
+            response = anotherMember.getChatRoom(roomId, LATITUDE, LONGITUDE);
+            assertThat(response.getRoom().getId()).isEqualTo(roomId);
+            assertThat(response.getChats()).hasSize(1);
+            assertThat(response.getChats().get(0).getId()).isEqualTo(chat.getId());
+            assertThat(response.getChats().get(0).getIsMine()).isFalse();
         }
 
         private void checkRoom(ChatRoomResponse roomResponse) {
