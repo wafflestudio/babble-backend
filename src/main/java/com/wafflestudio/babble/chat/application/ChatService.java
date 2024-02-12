@@ -70,13 +70,13 @@ public class ChatService {
         return chatRoom.getId();
     }
 
-    public Long createChat(CreateChatDto dto) {
+    public ChatDto createChat(CreateChatDto dto) {
         Member member = memberRepository.getByUserId(dto.getAuthUserId());
         ChatRoom chatRoom = chatRoomRepository.get(dto.getRoomId());
         // TODO: 거리가 너무 먼 경우에 대한 ForbiddenException 예외 처리 추가
         Chatter chatter = chatterRepository.findByRoomAndMember(chatRoom, member)
             .orElseThrow(() -> new ForbiddenException("아직 참여 중이지 않은 채팅방입니다."));
         Chat chat = chatRepository.save(Chat.create(chatRoom, chatter, dto.getContent()));
-        return chat.getId();
+        return ChatDto.of(chat, chat.getChatter());
     }
 }

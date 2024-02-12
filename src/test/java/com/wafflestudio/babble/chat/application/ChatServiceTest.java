@@ -1,13 +1,11 @@
 package com.wafflestudio.babble.chat.application;
 
 import static com.wafflestudio.babble.testutil.TestFixtures.CHAT_CONTENT;
-import static com.wafflestudio.babble.testutil.TestFixtures.FUTURE_UNIX_TIME;
 import static com.wafflestudio.babble.testutil.TestFixtures.HASHTAG;
 import static com.wafflestudio.babble.testutil.TestFixtures.KAKAO_AUTH_ID;
 import static com.wafflestudio.babble.testutil.TestFixtures.LATITUDE;
 import static com.wafflestudio.babble.testutil.TestFixtures.LONGITUDE;
 import static com.wafflestudio.babble.testutil.TestFixtures.NICKNAME;
-import static com.wafflestudio.babble.testutil.TestFixtures.PAST_UNIX_TIME;
 import static com.wafflestudio.babble.testutil.TestFixtures.ROOM_NAME;
 import static com.wafflestudio.babble.testutil.TestFixtures.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,46 +86,36 @@ public class ChatServiceTest extends ServiceTest {
         @Test
         @DisplayName("채팅방 참여 여부와 최근 채팅들의 내용 및 작성 시점을 조회할 수 있다")
         void checkIsChatterAndChats() {
-            Long chat1 = chatService.createChat(newCreateChatDto(manager, roomId, "안녕하세요"));
-            Long chat2 = chatService.createChat(newCreateChatDto(manager, roomId, "달이 아름답군요"));
-            Long chat3 = chatService.createChat(newCreateChatDto(manager, roomId, "그럼 이만 나갑니다"));
+            ChatDto chat1 = chatService.createChat(newCreateChatDto(manager, roomId, "안녕하세요"));
+            ChatDto chat2 = chatService.createChat(newCreateChatDto(manager, roomId, "달이 아름답군요"));
+            ChatDto chat3 = chatService.createChat(newCreateChatDto(manager, roomId, "그럼 이만 나갑니다"));
 
             ChatRoomDetailDto dto = chatService.getChatRoom(GetChatRoomDto.of(manager.getUserId(), roomId, LATITUDE, LONGITUDE));
 
             assertThat(dto.getRoom().getId()).isEqualTo(roomId);
             assertThat(dto.getIsChatter()).isTrue();
             assertThat(dto.getChats()).hasSize(3);
-            ChatDto chatDto3 = dto.getChats().get(0);
-            assertThat(chatDto3.getId()).isEqualTo(chat3);
-            assertThat(chatDto3.getContent()).isEqualTo("그럼 이만 나갑니다");
-            assertThat(chatDto3.getCreatedTimeInSec()).isLessThan(FUTURE_UNIX_TIME);
-            ChatDto chatDto2 = dto.getChats().get(1);
-            assertThat(chatDto2.getId()).isEqualTo(chat2);
-            assertThat(chatDto2.getContent()).isEqualTo("달이 아름답군요");
-            assertThat(chatDto2.getCreatedTimeInSec()).isLessThanOrEqualTo(chatDto3.getCreatedTimeInSec());
-            ChatDto chatDto1 = dto.getChats().get(2);
-            assertThat(chatDto1.getId()).isEqualTo(chat1);
-            assertThat(chatDto1.getContent()).isEqualTo("안녕하세요");
-            assertThat(chatDto1.getCreatedTimeInSec()).isLessThanOrEqualTo(chatDto2.getCreatedTimeInSec());
-            assertThat(chatDto1.getCreatedTimeInSec()).isGreaterThan(PAST_UNIX_TIME);
+            assertThat(dto.getChats().get(0)).isEqualTo(chat3);
+            assertThat(dto.getChats().get(1)).isEqualTo(chat2);
+            assertThat(dto.getChats().get(2)).isEqualTo(chat1);
         }
 
         @Test
         @DisplayName("채팅방에 참여 중이지 않아도 동일한 내용을 조회할 수는 있다")
         void outsiderTest() {
             Member member = memberRepository.save(Member.create(USER_ID + "!", null));
-            Long chat1 = chatService.createChat(newCreateChatDto(manager, roomId, "안녕하세요"));
-            Long chat2 = chatService.createChat(newCreateChatDto(manager, roomId, "달이 아름답군요"));
-            Long chat3 = chatService.createChat(newCreateChatDto(manager, roomId, "그럼 이만 나갑니다"));
+            ChatDto chat1 = chatService.createChat(newCreateChatDto(manager, roomId, "안녕하세요"));
+            ChatDto chat2 = chatService.createChat(newCreateChatDto(manager, roomId, "달이 아름답군요"));
+            ChatDto chat3 = chatService.createChat(newCreateChatDto(manager, roomId, "그럼 이만 나갑니다"));
 
             ChatRoomDetailDto dto = chatService.getChatRoom(GetChatRoomDto.of(member.getUserId(), roomId, LATITUDE, LONGITUDE));
 
             assertThat(dto.getRoom().getId()).isEqualTo(roomId);
             assertThat(dto.getIsChatter()).isFalse();
             assertThat(dto.getChats()).hasSize(3);
-            assertThat(dto.getChats().get(0).getId()).isEqualTo(chat3);
-            assertThat(dto.getChats().get(1).getId()).isEqualTo(chat2);
-            assertThat(dto.getChats().get(2).getId()).isEqualTo(chat1);
+            assertThat(dto.getChats().get(0)).isEqualTo(chat3);
+            assertThat(dto.getChats().get(1)).isEqualTo(chat2);
+            assertThat(dto.getChats().get(2)).isEqualTo(chat1);
         }
     }
 
@@ -164,8 +152,8 @@ public class ChatServiceTest extends ServiceTest {
         @Test
         @DisplayName("참여 중인 경우 채팅을 생성할 수 있다")
         void isChatterSuccess() {
-            Long chatId = chatService.createChat(newCreateChatDto(manager, roomId, CHAT_CONTENT));
-            assertThat(chatId).isGreaterThan(0L);
+            ChatDto dto = chatService.createChat(newCreateChatDto(manager, roomId, CHAT_CONTENT));
+            assertThat(dto).isNotNull();
         }
 
         @Test
