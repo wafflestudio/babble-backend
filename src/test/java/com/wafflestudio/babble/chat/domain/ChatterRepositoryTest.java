@@ -4,6 +4,7 @@ import static com.wafflestudio.babble.chat.domain.ChatRoomHashTag.LECTURE_ROOM;
 import static com.wafflestudio.babble.testutil.TestFixtures.LOCATION;
 import static com.wafflestudio.babble.testutil.TestFixtures.NICKNAME;
 import static com.wafflestudio.babble.testutil.TestFixtures.ROOM_NAME;
+import static com.wafflestudio.babble.testutil.TestFixtures.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,29 +31,29 @@ public class ChatterRepositoryTest {
 
     @Nested
     @DisplayName("채팅방에 특정 유저가")
-    class GenerateRandomAlphanumericStringTest {
+    class ExistsByRoomIdAndUserIdTest {
 
         private Member member;
         private ChatRoom chatRoom;
 
         @BeforeEach
         public void setUp() {
-            member = memberRepository.save(Member.create("abc123", null));
+            member = memberRepository.save(Member.create(USER_ID, null));
             chatRoom = chatRoomRepository.save(ChatRoom.create(ROOM_NAME, member, LECTURE_ROOM, LOCATION));
         }
 
         @Test
         @DisplayName("참가자인 경우 참을 반환한다.")
-        void existsByRoomIdAndMemberId() {
+        void exists() {
             chatterRepository.save(Chatter.create(chatRoom, member, NICKNAME));
-            boolean actual = chatterRepository.existsByRoomIdAndMemberId(chatRoom.getId(), member.getId());
+            boolean actual = chatterRepository.existsByRoomIdAndUserId(chatRoom.getId(), member.getUserId());
             assertThat(actual).isTrue();
         }
 
         @Test
         @DisplayName("참가하지 않은 경우 거짓을 반환한다.")
-        void notExistsByRoomIdAndMemberId() {
-            boolean actual = chatterRepository.existsByRoomIdAndMemberId(chatRoom.getId(), member.getId());
+        void notExists() {
+            boolean actual = chatterRepository.existsByRoomIdAndUserId(chatRoom.getId(), member.getUserId());
             assertThat(actual).isFalse();
         }
     }

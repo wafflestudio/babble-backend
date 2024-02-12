@@ -12,16 +12,16 @@ import com.wafflestudio.babble.member.domain.Member;
 @Repository
 public interface ChatterRepository extends JpaRepository<Chatter, Long> {
 
-    default boolean existsByRoomIdAndMemberId(Long roomId, Long memberId) {
-        return countByRoomIdAndMemberId(roomId, memberId) > 0;
+    default boolean existsByRoomIdAndUserId(Long roomId, String userId) {
+        return countByRoomIdAndUserId(roomId, userId) > 0;
     }
 
     @Query("SELECT COUNT(*)"
         + "FROM Chatter c "
         + "JOIN c.room "
         + "JOIN c.member "
-        + "WHERE c.room.id = :roomId AND c.member.id = :memberId")
-    int countByRoomIdAndMemberId(@Param("roomId") Long roomId, @Param("memberId") Long memberId);
+        + "WHERE c.room.id = :roomId AND c.member.userId = :userId")
+    int countByRoomIdAndUserId(@Param("roomId") Long roomId, @Param("userId") String userId);
 
     Optional<Chatter> findByRoomAndMember(ChatRoom room, Member member);
 }
