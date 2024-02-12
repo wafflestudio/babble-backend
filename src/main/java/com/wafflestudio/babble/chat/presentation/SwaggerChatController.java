@@ -33,5 +33,11 @@ public interface SwaggerChatController {
     ResponseEntity<GetChatRoomResponse> getChatRoom(String authId, Long roomId, Double latitude, Double longitude);
 
     @ApiOperation(value = "본인이 참여 중인 채팅방에서 채팅을 생성한다.")
+    @ApiImplicitParams({
+        @ApiImplicitParam(
+            name = "ABC",
+            required = true,
+            paramType = "body", dataTypeClass = CreateChatRequest.class)
+    })
     ResponseEntity<ChatResponse> createChat(String authId, Long roomId, CreateChatRequest requestBody);
 }
