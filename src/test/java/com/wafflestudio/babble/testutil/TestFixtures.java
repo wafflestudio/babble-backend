@@ -13,6 +13,10 @@ public class TestFixtures {
     public static final Location LOCATION = new Location(10.0d, 10.0d);
     public static final Double LATITUDE = 10.0d;
     public static final Double LONGITUDE = 10.0d;
-    public static final Long PAST_UNIX_TIME_MS = 1707696000L * 1000; // 2024년 2월 12일 0시 0분 0초 (ms 단위)
-    public static final Long FUTURE_UNIX_TIME_MS = 32472144000L * 1000; // 2999년 1월 1일 0시 0분 0초 (ms 단위)
+    // 2024년 2월 12일 0시 0분 0초
+    public static final Long PAST_UNIX_TIME = 1707696000L;
+    public static final Long PAST_UNIX_TIME_MS = PAST_UNIX_TIME * 1000;
+    // 2024년 2월 12일 0시 0분 0초
+    public static final Long FUTURE_UNIX_TIME = 32472144000L;
+    public static final Long FUTURE_UNIX_TIME_MS = FUTURE_UNIX_TIME * 1000;
 }

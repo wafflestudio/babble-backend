@@ -1,11 +1,13 @@
 package com.wafflestudio.babble.chat.application;
 
 import static com.wafflestudio.babble.testutil.TestFixtures.CHAT_CONTENT;
+import static com.wafflestudio.babble.testutil.TestFixtures.FUTURE_UNIX_TIME;
 import static com.wafflestudio.babble.testutil.TestFixtures.HASHTAG;
 import static com.wafflestudio.babble.testutil.TestFixtures.KAKAO_AUTH_ID;
 import static com.wafflestudio.babble.testutil.TestFixtures.LATITUDE;
 import static com.wafflestudio.babble.testutil.TestFixtures.LONGITUDE;
 import static com.wafflestudio.babble.testutil.TestFixtures.NICKNAME;
+import static com.wafflestudio.babble.testutil.TestFixtures.PAST_UNIX_TIME;
 import static com.wafflestudio.babble.testutil.TestFixtures.ROOM_NAME;
 import static com.wafflestudio.babble.testutil.TestFixtures.USER_ID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,9 +24,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.wafflestudio.babble.chat.application.dto.ChatDto;
+import com.wafflestudio.babble.chat.application.dto.ChatRoomDetailDto;
 import com.wafflestudio.babble.chat.application.dto.ChatRoomResponseDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatRoomDto;
+import com.wafflestudio.babble.chat.application.dto.GetChatRoomDto;
 import com.wafflestudio.babble.chat.domain.ChatRoom;
 import com.wafflestudio.babble.chat.domain.ChatRoomRepository;
 import com.wafflestudio.babble.chat.domain.Chatter;
@@ -67,6 +72,65 @@ public class ChatServiceTest extends ServiceTest {
         assertThat(chatter.getMemberId()).isEqualTo(newMember.getId());
     }
 
+    @Nested
+    @DisplayName("채팅방을 조회하면")
+    class GetChatRoomTest {
+
+        private Member manager;
+        private Long roomId;
+
+        @BeforeEach
+        public void setUp() {
+            manager = memberRepository.save(Member.create(USER_ID, KAKAO_AUTH_ID));
+            roomId = chatService.createChatRoom(CreateChatRoomDto.of(manager.getUserId(), NICKNAME, ROOM_NAME, HASHTAG, LATITUDE, LONGITUDE));
+        }
+
+        @Test
+        @DisplayName("채팅방 참여 여부와 최근 채팅들의 내용 및 작성 시점을 조회할 수 있다")
+        void checkIsChatterAndChats() {
+            Long chat1 = chatService.createChat(newCreateChatDto(manager, roomId, "안녕하세요"));
+            Long chat2 = chatService.createChat(newCreateChatDto(manager, roomId, "달이 아름답군요"));
+            Long chat3 = chatService.createChat(newCreateChatDto(manager, roomId, "그럼 이만 나갑니다"));
+
+            ChatRoomDetailDto dto = chatService.getChatRoom(GetChatRoomDto.of(manager.getUserId(), roomId, LATITUDE, LONGITUDE));
+
+            assertThat(dto.getRoom().getId()).isEqualTo(roomId);
+            assertThat(dto.getIsChatter()).isTrue();
+            assertThat(dto.getChats()).hasSize(3);
+            ChatDto chatDto3 = dto.getChats().get(0);
+            assertThat(chatDto3.getId()).isEqualTo(chat3);
+            assertThat(chatDto3.getContent()).isEqualTo("그럼 이만 나갑니다");
+            assertThat(chatDto3.getCreatedTimeInSec()).isLessThan(FUTURE_UNIX_TIME);
+            ChatDto chatDto2 = dto.getChats().get(1);
+            assertThat(chatDto2.getId()).isEqualTo(chat2);
+            assertThat(chatDto2.getContent()).isEqualTo("달이 아름답군요");
+            assertThat(chatDto2.getCreatedTimeInSec()).isLessThanOrEqualTo(chatDto3.getCreatedTimeInSec());
+            ChatDto chatDto1 = dto.getChats().get(2);
+            assertThat(chatDto1.getId()).isEqualTo(chat1);
+            assertThat(chatDto1.getContent()).isEqualTo("안녕하세요");
+            assertThat(chatDto1.getCreatedTimeInSec()).isLessThanOrEqualTo(chatDto2.getCreatedTimeInSec());
+            assertThat(chatDto1.getCreatedTimeInSec()).isGreaterThan(PAST_UNIX_TIME);
+        }
+
+        @Test
+        @DisplayName("채팅방에 참여 중이지 않아도 동일한 내용을 조회할 수는 있다")
+        void outsiderTest() {
+            Member member = memberRepository.save(Member.create(USER_ID + "!", null));
+            Long chat1 = chatService.createChat(newCreateChatDto(manager, roomId, "안녕하세요"));
+            Long chat2 = chatService.createChat(newCreateChatDto(manager, roomId, "달이 아름답군요"));
+            Long chat3 = chatService.createChat(newCreateChatDto(manager, roomId, "그럼 이만 나갑니다"));
+
+            ChatRoomDetailDto dto = chatService.getChatRoom(GetChatRoomDto.of(member.getUserId(), roomId, LATITUDE, LONGITUDE));
+
+            assertThat(dto.getRoom().getId()).isEqualTo(roomId);
+            assertThat(dto.getIsChatter()).isFalse();
+            assertThat(dto.getChats()).hasSize(3);
+            assertThat(dto.getChats().get(0).getId()).isEqualTo(chat3);
+            assertThat(dto.getChats().get(1).getId()).isEqualTo(chat2);
+            assertThat(dto.getChats().get(2).getId()).isEqualTo(chat1);
+        }
+    }
+
     @Test
     @DisplayName("현재 위치를 기준으로 채팅방 목록을 조회한다")
     void getNearbyRoomsTest() {
@@ -100,8 +164,7 @@ public class ChatServiceTest extends ServiceTest {
         @Test
         @DisplayName("참여 중인 경우 채팅을 생성할 수 있다")
         void isChatterSuccess() {
-            CreateChatDto dto = CreateChatDto.of(manager.getUserId(), roomId, CHAT_CONTENT, LATITUDE, LONGITUDE);
-            Long chatId = chatService.createChat(dto);
+            Long chatId = chatService.createChat(newCreateChatDto(manager, roomId, CHAT_CONTENT));
             assertThat(chatId).isGreaterThan(0L);
         }
 
@@ -110,8 +173,7 @@ public class ChatServiceTest extends ServiceTest {
         void notChatterForbidden() {
             Member anotherMember = memberRepository.save(Member.create(USER_ID + "!", null));
 
-            CreateChatDto dto = CreateChatDto.of(anotherMember.getUserId(), roomId, CHAT_CONTENT, LATITUDE, LONGITUDE);
-            assertThatThrownBy(() -> chatService.createChat(dto))
+            assertThatThrownBy(() -> chatService.createChat(newCreateChatDto(anotherMember, roomId, CHAT_CONTENT)))
                 .isInstanceOf(ForbiddenException.class);
         }
     }
@@ -126,5 +188,9 @@ public class ChatServiceTest extends ServiceTest {
         List<Chatter> chatters = chatterRepository.findAll();
         assertThat(chatters).hasSize(1);
         return chatters.get(0);
+    }
+
+    private CreateChatDto newCreateChatDto(Member member, Long roomId, String content) {
+        return CreateChatDto.of(member.getUserId(), roomId, content, LATITUDE, LONGITUDE);
     }
 }

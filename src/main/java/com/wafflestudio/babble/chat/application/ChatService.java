@@ -1,14 +1,18 @@
 package com.wafflestudio.babble.chat.application;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.wafflestudio.babble.chat.application.dto.ChatDto;
+import com.wafflestudio.babble.chat.application.dto.ChatRoomDetailDto;
 import com.wafflestudio.babble.chat.application.dto.ChatRoomResponseDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatRoomDto;
+import com.wafflestudio.babble.chat.application.dto.GetChatRoomDto;
 import com.wafflestudio.babble.chat.domain.Chat;
 import com.wafflestudio.babble.chat.domain.ChatRepository;
 import com.wafflestudio.babble.chat.domain.ChatRoom;
@@ -30,6 +34,26 @@ public class ChatService {
     private final ChatterRepository chatterRepository;
     private final ChatRepository chatRepository;
     private final MemberRepository memberRepository;
+
+    @Transactional(readOnly = true)
+    public ChatRoomDetailDto getChatRoom(GetChatRoomDto dto) {
+        ChatRoom chatRoom = chatRoomRepository.get(dto.getRoomId());
+        // TODO: 거리가 너무 먼 경우에 대한 ForbiddenException 예외 처리 추가
+        boolean isChatter = chatterRepository.existsByRoomIdAndUserId(chatRoom.getId(), dto.getAuthUserId());
+        // TODO: 최근 N개만 보여주도록 수정?
+        List<ChatDto> chats = chatRepository.findAll().stream()
+            .sorted(ChatService::sortByCreatedAtAndIdDesc)
+            .map(chat -> ChatDto.of(chat, chat.getChatter()))
+            .collect(Collectors.toList());
+        return ChatRoomDetailDto.of(chatRoom, isChatter, chats);
+    }
+
+    private static int sortByCreatedAtAndIdDesc(Chat a, Chat b) {
+        if (Objects.equals(b.getCreatedAt(), a.getCreatedAt())) {
+            return (int) (b.getId() - a.getId());
+        }
+        return (int) (b.getCreatedAt() - a.getCreatedAt());
+    }
 
     @Transactional(readOnly = true)
     public List<ChatRoomResponseDto> getNearbyRooms(Double latitude, Double longitude) {

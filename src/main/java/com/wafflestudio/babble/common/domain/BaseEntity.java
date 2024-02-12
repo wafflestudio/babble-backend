@@ -22,4 +22,8 @@ public abstract class BaseEntity {
     @LastModifiedDate
     @Column(nullable = false)
     private Long updatedAt;
+
+    public Long getCreatedAtInSec() {
+        return createdAt / 1000;
+    }
 }
