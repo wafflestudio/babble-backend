@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.wafflestudio.babble.chat.application.dto.ChatDto;
 import com.wafflestudio.babble.chat.application.dto.ChatRoomDetailDto;
 import com.wafflestudio.babble.chat.application.dto.ChatRoomResponseDto;
+import com.wafflestudio.babble.chat.application.dto.ChatsDto;
 import com.wafflestudio.babble.chat.application.dto.ChatterDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatRoomDto;
@@ -48,12 +49,10 @@ public class ChatService {
             .sorted(ChatService::sortByCreatedAtAndIdDesc)
             .map(chat -> ChatDto.of(chat, chat.getChatter()))
             .collect(Collectors.toList());
-        Optional<Chatter> chatter = chatterRepository.findByRoomIdAndUserId(chatRoom.getId(), dto.getAuthUserId());
         int chatterCount = chatterRepository.countByRoom(chatRoom);
-        if (chatter.isEmpty()) {
-            return ChatRoomDetailDto.ofVisitor(chatRoom, chatterCount, chats);
-        }
-        return ChatRoomDetailDto.ofChatter(chatRoom, chatter.get().getId(), chatterCount, chats);
+        Optional<Chatter> chatter = chatterRepository.findByRoomIdAndUserId(chatRoom.getId(), dto.getAuthUserId());
+        Long myChatterId = chatter.map(Chatter::getId).orElse(0L);
+        return ChatRoomDetailDto.of(chatRoom, chatterCount, ChatsDto.of(myChatterId, chats));
     }
 
     private static int sortByCreatedAtAndIdDesc(Chat a, Chat b) {

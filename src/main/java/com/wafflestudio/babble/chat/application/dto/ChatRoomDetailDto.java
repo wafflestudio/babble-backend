@@ -13,15 +13,18 @@ public class ChatRoomDetailDto {
 
     private final ChatRoomResponseDto room;
     private final Boolean isChatter;
-    private final Long myChatterId;
     private final Integer chatterCount;
-    private final List<ChatDto> chats;
+    private final ChatsDto chatsDto;
 
-    public static ChatRoomDetailDto ofChatter(ChatRoom room, Long myChatterId, int chatterCount, List<ChatDto> chats) {
-        return new ChatRoomDetailDto(ChatRoomResponseDto.of(room), true, myChatterId, chatterCount, chats);
+    public static ChatRoomDetailDto of(ChatRoom room,  int chatterCount, ChatsDto chats) {
+        return new ChatRoomDetailDto(ChatRoomResponseDto.of(room), chats.isChatter(), chatterCount, chats);
     }
 
-    public static ChatRoomDetailDto ofVisitor(ChatRoom room, int chatterCount, List<ChatDto> chats) {
-        return new ChatRoomDetailDto(ChatRoomResponseDto.of(room), false, 0L, chatterCount, chats);
+    public Long getMyChatterId() {
+        return chatsDto.getMyChatterId();
+    }
+
+    public List<ChatDto> getChats() {
+        return chatsDto.getValues();
     }
 }

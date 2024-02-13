@@ -1,5 +1,7 @@
 package com.wafflestudio.babble.chat.application.dto;
 
+import java.util.Objects;
+
 import com.wafflestudio.babble.chat.domain.Chat;
 import com.wafflestudio.babble.chat.domain.Chatter;
 
@@ -20,5 +22,9 @@ public class ChatDto {
 
     public static ChatDto of(Chat chat, Chatter chatter) {
         return new ChatDto(chat.getId(), chatter.getId(), chatter.getNickname(), chat.getContent(), chat.getCreatedAtInSec());
+    }
+
+    public boolean isMyChat(Long myChatterId) {
+        return Objects.equals(myChatterId, this.chatterId);
     }
 }

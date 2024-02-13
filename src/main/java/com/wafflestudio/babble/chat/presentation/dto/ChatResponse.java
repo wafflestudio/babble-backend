@@ -21,7 +21,8 @@ public class ChatResponse {
     private Boolean isMine;
     private Long createdTimeInSec;
 
-    public static ChatResponse of(ChatDto dto, boolean isMine) {
+    public static ChatResponse of(ChatDto dto, Long myChatterId) {
+        Boolean isMine = dto.isMyChat(myChatterId);
         return new ChatResponse(dto.getId(), dto.getChatterId(), dto.getChatterNickname(), dto.getContent(), isMine, dto.getCreatedTimeInSec());
     }
 }

@@ -74,6 +74,6 @@ public class ChatController implements SwaggerChatController {
                                                    @PathVariable Long roomId,
                                                    @RequestBody CreateChatRequest requestBody) {
         ChatDto dto = chatService.createChat(requestBody.toDto(authId, roomId));
-        return ResponseEntity.status(HttpStatus.CREATED).body(ChatResponse.of(dto, true));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ChatResponse.of(dto, dto.getChatterId()));
     }
 }
