@@ -3,8 +3,10 @@ package com.wafflestudio.babble.chat.presentation;
 import org.springframework.http.ResponseEntity;
 
 import com.wafflestudio.babble.chat.presentation.dto.ChatResponse;
+import com.wafflestudio.babble.chat.presentation.dto.ChatterResponse;
 import com.wafflestudio.babble.chat.presentation.dto.CreateChatRequest;
 import com.wafflestudio.babble.chat.presentation.dto.CreateChatRoomRequest;
+import com.wafflestudio.babble.chat.presentation.dto.CreateChatterRequest;
 import com.wafflestudio.babble.chat.presentation.dto.GetChatRoomResponse;
 import com.wafflestudio.babble.chat.presentation.dto.NearByChatRoomsResponse;
 
@@ -32,6 +34,15 @@ public interface SwaggerChatController {
 
     @ApiOperation(value = "특정 채팅방에 입장하며 본인의 참여 여부와 최근 채팅들을 조회한다.")
     ResponseEntity<GetChatRoomResponse> getChatRoom(@ApiIgnore String authId, Long roomId, Double latitude, Double longitude);
+
+    @ApiOperation(value = "채팅방에 참여한다.")
+    @ApiImplicitParams({
+        @ApiImplicitParam(
+            name = "ABC",
+            required = true,
+            paramType = "body", dataTypeClass = CreateChatterRequest.class)
+    })
+    ResponseEntity<ChatterResponse> createChatter(@ApiIgnore String authId, Long roomId, CreateChatterRequest requestBody);
 
     @ApiOperation(value = "본인이 참여 중인 채팅방에서 채팅을 생성한다.")
     @ApiImplicitParams({

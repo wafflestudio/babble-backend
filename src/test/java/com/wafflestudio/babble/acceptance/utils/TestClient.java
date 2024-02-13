@@ -12,11 +12,13 @@ import org.springframework.http.MediaType;
 import com.wafflestudio.babble.auth.application.KakaoService;
 import com.wafflestudio.babble.auth.presentation.dto.LoginResponse;
 import com.wafflestudio.babble.chat.presentation.dto.ChatResponse;
+import com.wafflestudio.babble.chat.presentation.dto.ChatRoomResponse;
+import com.wafflestudio.babble.chat.presentation.dto.ChatterResponse;
 import com.wafflestudio.babble.chat.presentation.dto.CreateChatRequest;
 import com.wafflestudio.babble.chat.presentation.dto.CreateChatRoomRequest;
+import com.wafflestudio.babble.chat.presentation.dto.CreateChatterRequest;
 import com.wafflestudio.babble.chat.presentation.dto.GetChatRoomResponse;
 import com.wafflestudio.babble.chat.presentation.dto.NearByChatRoomsResponse;
-import com.wafflestudio.babble.chat.presentation.dto.ChatRoomResponse;
 
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -90,6 +92,19 @@ public class TestClient {
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
         return response.as(GetChatRoomResponse.class);
+    }
+
+    public ChatterResponse createChatter(Long roomId, CreateChatterRequest body) {
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+            .auth().oauth2(this.accessToken)
+            .body(body)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .when()
+            .post("/api/chat/rooms/" + roomId + "/chatters")
+            .then().log().all()
+            .extract();
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+        return response.as(ChatterResponse.class);
     }
 
     public ChatResponse createChatSuccess(Long roomId, CreateChatRequest body) {

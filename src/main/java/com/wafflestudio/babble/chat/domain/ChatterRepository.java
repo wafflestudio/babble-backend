@@ -14,6 +14,8 @@ public interface ChatterRepository extends JpaRepository<Chatter, Long> {
 
     boolean existsByRoomAndMember(ChatRoom room, Member member);
 
+    boolean existsByRoomAndNickname(ChatRoom room, String nickname);
+
     int countByRoom(ChatRoom room);
 
     @Query("SELECT c "

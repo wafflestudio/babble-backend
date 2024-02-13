@@ -25,13 +25,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.wafflestudio.babble.chat.application.dto.ChatDto;
 import com.wafflestudio.babble.chat.application.dto.ChatRoomDetailDto;
 import com.wafflestudio.babble.chat.application.dto.ChatRoomResponseDto;
+import com.wafflestudio.babble.chat.application.dto.ChatterDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatRoomDto;
+import com.wafflestudio.babble.chat.application.dto.CreateChatterDto;
 import com.wafflestudio.babble.chat.application.dto.GetChatRoomDto;
 import com.wafflestudio.babble.chat.domain.ChatRoom;
 import com.wafflestudio.babble.chat.domain.ChatRoomRepository;
 import com.wafflestudio.babble.chat.domain.Chatter;
 import com.wafflestudio.babble.chat.domain.ChatterRepository;
+import com.wafflestudio.babble.common.exception.BadRequestException;
 import com.wafflestudio.babble.common.exception.ForbiddenException;
 import com.wafflestudio.babble.member.domain.Member;
 import com.wafflestudio.babble.member.domain.MemberRepository;
@@ -134,6 +137,46 @@ public class ChatServiceTest extends ServiceTest {
         assertThat(rooms.get(0).getId()).isEqualTo(room1);
         assertThat(rooms.get(1).getId()).isEqualTo(room2);
         assertThat(rooms.get(2).getId()).isEqualTo(room3);
+    }
+
+    @Nested
+    @DisplayName("채팅방에")
+    class CreateChatterTest {
+
+        private static final String MANAGER_NICKNAME = NICKNAME;
+
+        private Long roomId;
+        private Member member;
+
+        @BeforeEach
+        public void setUp() {
+            memberRepository.save(Member.create(USER_ID, KAKAO_AUTH_ID));
+            roomId = chatService.createChatRoom(CreateChatRoomDto.of(USER_ID, MANAGER_NICKNAME, ROOM_NAME, HASHTAG, LATITUDE, LONGITUDE));
+            member = memberRepository.save(Member.create(USER_ID + "!", null));
+        }
+
+        @Test
+        @DisplayName("참여자가 될 수 있다")
+        void success() {
+            ChatterDto dto = chatService.createChatter(CreateChatterDto.of(member.getUserId(), roomId, "토끼", LATITUDE, LONGITUDE));
+            assertThat(dto).isNotNull();
+        }
+
+        @Test
+        @DisplayName("이미 참여 중인 경우 참여자가 될 수 없다")
+        void alreadyCreated() {
+            chatService.createChatter(CreateChatterDto.of(member.getUserId(), roomId, "토끼", LATITUDE, LONGITUDE));
+
+            assertThatThrownBy(() -> chatService.createChatter(CreateChatterDto.of(member.getUserId(), roomId, "토끼!", LATITUDE, LONGITUDE)))
+                .isInstanceOf(BadRequestException.class);
+        }
+
+        @Test
+        @DisplayName("다른 사람이 사용 중인 닉네임은 사용할 수 없다")
+        void duplicateNickname() {
+            assertThatThrownBy(() -> chatService.createChatter(CreateChatterDto.of(member.getUserId(), roomId, MANAGER_NICKNAME, LATITUDE, LONGITUDE)))
+                .isInstanceOf(BadRequestException.class);
+        }
     }
 
     @Nested

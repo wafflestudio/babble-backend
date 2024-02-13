@@ -11,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.wafflestudio.babble.chat.application.dto.ChatDto;
 import com.wafflestudio.babble.chat.application.dto.ChatRoomDetailDto;
 import com.wafflestudio.babble.chat.application.dto.ChatRoomResponseDto;
+import com.wafflestudio.babble.chat.application.dto.ChatterDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatRoomDto;
+import com.wafflestudio.babble.chat.application.dto.CreateChatterDto;
 import com.wafflestudio.babble.chat.application.dto.GetChatRoomDto;
 import com.wafflestudio.babble.chat.domain.Chat;
 import com.wafflestudio.babble.chat.domain.ChatRepository;
@@ -20,6 +22,7 @@ import com.wafflestudio.babble.chat.domain.ChatRoom;
 import com.wafflestudio.babble.chat.domain.ChatRoomRepository;
 import com.wafflestudio.babble.chat.domain.Chatter;
 import com.wafflestudio.babble.chat.domain.ChatterRepository;
+import com.wafflestudio.babble.common.exception.BadRequestException;
 import com.wafflestudio.babble.common.exception.ForbiddenException;
 import com.wafflestudio.babble.member.domain.Member;
 import com.wafflestudio.babble.member.domain.MemberRepository;
@@ -73,6 +76,20 @@ public class ChatService {
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.create(dto.getRoomName(), member, dto.getHashTag(), dto.getLocation()));
         chatterRepository.save(Chatter.create(chatRoom, member, dto.getNickname()));
         return chatRoom.getId();
+    }
+
+    public ChatterDto createChatter(CreateChatterDto dto) {
+        ChatRoom chatRoom = chatRoomRepository.get(dto.getRoomId());
+        Member member = memberRepository.getByUserId(dto.getAuthUserId());
+        if (chatterRepository.existsByRoomAndMember(chatRoom, member)) {
+            throw new BadRequestException("이미 참여 중인 채팅방입니다");
+        }
+        if (chatterRepository.existsByRoomAndNickname(chatRoom, dto.getNickname())) {
+            throw new BadRequestException("이미 사용 중인 닉네임입니다.");
+        }
+        // TODO: 거리가 너무 먼 경우에 대한 ForbiddenException 예외 처리 추가
+        Chatter chatter = chatterRepository.save(Chatter.create(chatRoom, member, dto.getNickname()));
+        return ChatterDto.of(chatter);
     }
 
     public ChatDto createChat(CreateChatDto dto) {

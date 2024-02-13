@@ -17,10 +17,13 @@ import com.wafflestudio.babble.chat.application.ChatService;
 import com.wafflestudio.babble.chat.application.dto.ChatDto;
 import com.wafflestudio.babble.chat.application.dto.ChatRoomDetailDto;
 import com.wafflestudio.babble.chat.application.dto.ChatRoomResponseDto;
+import com.wafflestudio.babble.chat.application.dto.ChatterDto;
 import com.wafflestudio.babble.chat.application.dto.GetChatRoomDto;
 import com.wafflestudio.babble.chat.presentation.dto.ChatResponse;
+import com.wafflestudio.babble.chat.presentation.dto.ChatterResponse;
 import com.wafflestudio.babble.chat.presentation.dto.CreateChatRequest;
 import com.wafflestudio.babble.chat.presentation.dto.CreateChatRoomRequest;
+import com.wafflestudio.babble.chat.presentation.dto.CreateChatterRequest;
 import com.wafflestudio.babble.chat.presentation.dto.GetChatRoomResponse;
 import com.wafflestudio.babble.chat.presentation.dto.NearByChatRoomsResponse;
 import com.wafflestudio.babble.common.presentation.AuthUserId;
@@ -56,6 +59,14 @@ public class ChatController implements SwaggerChatController {
                                                            @RequestParam Double longitude) {
         ChatRoomDetailDto dto = chatService.getChatRoom(GetChatRoomDto.of(authId, roomId, latitude, longitude));
         return ResponseEntity.ok().body(GetChatRoomResponse.of(dto));
+    }
+
+    @PostMapping("/rooms/{roomId}/chatters")
+    public ResponseEntity<ChatterResponse> createChatter(@AuthUserId String authId,
+                                                         @PathVariable Long roomId,
+                                                         @RequestBody CreateChatterRequest requestBody) {
+        ChatterDto dto = chatService.createChatter(requestBody.toDto(authId, roomId));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ChatterResponse.of(dto));
     }
 
     @PostMapping("/rooms/{roomId}/chats")
