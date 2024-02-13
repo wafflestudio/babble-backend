@@ -39,7 +39,7 @@ public class ChatterRepositoryTest {
 
     @Nested
     @DisplayName("채팅방에서 특정 유저가")
-    class ExistsByRoomIdAndUserIdTest {
+    class ExistsByRoomAndMemberTest {
 
         private Member member;
         private ChatRoom chatRoom;
@@ -54,14 +54,14 @@ public class ChatterRepositoryTest {
         @DisplayName("참가자인 경우 참을 반환한다.")
         void exists() {
             chatterRepository.save(Chatter.create(chatRoom, member, NICKNAME));
-            boolean actual = chatterRepository.existsByRoomIdAndUserId(chatRoom.getId(), member.getUserId());
+            boolean actual = chatterRepository.existsByRoomAndMember(chatRoom, member);
             assertThat(actual).isTrue();
         }
 
         @Test
         @DisplayName("참가하지 않은 경우 거짓을 반환한다.")
         void notExists() {
-            boolean actual = chatterRepository.existsByRoomIdAndUserId(chatRoom.getId(), member.getUserId());
+            boolean actual = chatterRepository.existsByRoomAndMember(chatRoom, member);
             assertThat(actual).isFalse();
         }
     }
