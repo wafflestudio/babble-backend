@@ -17,6 +17,7 @@ import com.wafflestudio.babble.chat.application.dto.CreateChatDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatRoomDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatterDto;
 import com.wafflestudio.babble.chat.application.dto.GetChatRoomDto;
+import com.wafflestudio.babble.chat.application.dto.GetLatestChatsDto;
 import com.wafflestudio.babble.chat.domain.Chat;
 import com.wafflestudio.babble.chat.domain.ChatRepository;
 import com.wafflestudio.babble.chat.domain.ChatRoom;
@@ -68,6 +69,19 @@ public class ChatService {
         return chatRoomRepository.findAll().stream()
             .map(ChatRoomResponseDto::of)
             .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public ChatsDto getLatestChats(GetLatestChatsDto dto) {
+        ChatRoom room = chatRoomRepository.get(dto.getRoomId());
+        // TODO: 거리가 너무 먼 경우에 대한 ForbiddenException 예외 처리 추가
+        Optional<Chatter> chatter = chatterRepository.findByRoomIdAndUserId(room.getId(), dto.getAuthUserId());
+        Long myChatterId = chatter.map(Chatter::getId).orElse(0L);
+        List<ChatDto> chats = chatRepository.findAllByRoomAndIdGreaterThan(room, dto.getLatestChatId())
+            .stream()
+            .map(chat -> ChatDto.of(chat, chat.getChatter()))
+            .collect(Collectors.toList());
+        return ChatsDto.of(myChatterId, chats);
     }
 
     public Long createChatRoom(CreateChatRoomDto dto) {
