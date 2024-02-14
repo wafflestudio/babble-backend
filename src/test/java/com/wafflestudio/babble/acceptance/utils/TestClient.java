@@ -3,7 +3,9 @@ package com.wafflestudio.babble.acceptance.utils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import com.wafflestudio.babble.auth.application.KakaoService;
 import com.wafflestudio.babble.auth.presentation.dto.LoginResponse;
 import com.wafflestudio.babble.chat.presentation.dto.ChatResponse;
 import com.wafflestudio.babble.chat.presentation.dto.ChatRoomResponse;
+import com.wafflestudio.babble.chat.presentation.dto.ChatsResponse;
 import com.wafflestudio.babble.chat.presentation.dto.ChatterResponse;
 import com.wafflestudio.babble.chat.presentation.dto.CreateChatRequest;
 import com.wafflestudio.babble.chat.presentation.dto.CreateChatRoomRequest;
@@ -29,6 +32,7 @@ public class TestClient {
     private final KakaoService mockedKakaoService;
 
     private String accessToken;
+    private final Map<Long, Long> latestChatIdMap = new HashMap<>();
 
     public TestClient(KakaoService mockedKakaoService) {
         this.mockedKakaoService = mockedKakaoService;
@@ -50,7 +54,7 @@ public class TestClient {
         return accessToken;
     }
 
-    public String createRoom(CreateChatRoomRequest body) {
+    public Long createRoom(CreateChatRoomRequest body) {
         ExtractableResponse<Response> response = RestAssured.given().log().all()
             .auth().oauth2(this.accessToken)
             .body(body)
@@ -63,7 +67,8 @@ public class TestClient {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
         String location = response.header(HttpHeaders.LOCATION);
         assertThat(location).isNotBlank();
-        return location;
+        assertThat(location).startsWith("/api/chat/rooms/");
+        return Long.valueOf(location.substring("/api/chat/rooms/".length()));
     }
 
     public List<ChatRoomResponse> getNearbyRooms(Double latitude, Double longitude) {
@@ -105,6 +110,26 @@ public class TestClient {
             .extract();
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
         return response.as(ChatterResponse.class);
+    }
+
+    public ChatsResponse getChats(Long roomId, Double latitude, Double longitude) {
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+            .auth().oauth2(this.accessToken)
+            .param("latestChatId", latestChatIdMap.getOrDefault(roomId, 0L))
+            .param("latitude", latitude)
+            .param("longitude", longitude)
+            .when()
+            .get("/api/chat/rooms/" + roomId + "/chats")
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        ChatsResponse chatsResponse = response.as(ChatsResponse.class);
+        List<ChatResponse> chats = chatsResponse.getChats();
+        if (!chats.isEmpty()) {
+            latestChatIdMap.put(roomId, chats.get(0).getId());
+        }
+        return chatsResponse;
     }
 
     public ChatResponse createChatSuccess(Long roomId, CreateChatRequest body) {

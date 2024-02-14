@@ -45,9 +45,7 @@ public class ChatAcceptanceTest extends AcceptanceTest {
         void setup() {
             manager = createTestClient();
             manager.loginSuccess(KAKAO_AUTH_ID);
-            String location = manager.createRoom(new CreateChatRoomRequest(NICKNAME, ROOM_NAME, HASHTAG, LATITUDE, LONGITUDE));
-            assertThat(location).startsWith("/api/chat/rooms/");
-            roomId = Long.valueOf(location.substring("/api/chat/rooms/".length()));
+            roomId  = manager.createRoom(new CreateChatRoomRequest(NICKNAME, ROOM_NAME, HASHTAG, LATITUDE, LONGITUDE));
         }
 
         @DisplayName("방장이 된 유저가 해당 방에 들어가면 이미 참여 중인 것으로 뜨며, 채팅을 만들 수 있다")
@@ -134,6 +132,60 @@ public class ChatAcceptanceTest extends AcceptanceTest {
             assertThat(roomResponse.getLatitude()).isEqualTo(LATITUDE);
             assertThat(roomResponse.getLongitude()).isEqualTo(LONGITUDE);
         }
+    }
+
+    @DisplayName("각 유저는 가장 최근에 읽은 채팅 이후에 생성된 채팅들을 조회할 수 있다")
+    @Test
+    void getChats() {
+        TestClient manager = createTestClient();
+        manager.loginSuccess(KAKAO_AUTH_ID);
+        Long roomId = manager.createRoom(new CreateChatRoomRequest(NICKNAME, ROOM_NAME, HASHTAG, LATITUDE, LONGITUDE));
+
+        TestClient chatter = createTestClient();
+        chatter.loginSuccess(KAKAO_AUTH_ID + 1L);
+        chatter.createChatter(roomId, new CreateChatterRequest("검은고양이", LATITUDE, LONGITUDE));
+
+        ChatResponse chat1 = manager.createChatSuccess(roomId, new CreateChatRequest("안녕하세요 1", LATITUDE, LONGITUDE));
+        ChatResponse chat2 = chatter.createChatSuccess(roomId, new CreateChatRequest("안녕하세요 2", LATITUDE, LONGITUDE));
+
+        List<ChatResponse> response = manager.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        assertThat(response).hasSize(2);
+        assertThat(response.get(0).getId()).isEqualTo(chat2.getId());
+        assertThat(response.get(0).getIsMine()).isFalse();
+        assertThat(response.get(1).getId()).isEqualTo(chat1.getId());
+        assertThat(response.get(1).getIsMine()).isTrue();
+        response = manager.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        assertThat(response).hasSize(0);
+
+        response = chatter.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        assertThat(response).hasSize(2);
+        assertThat(response.get(0).getId()).isEqualTo(chat2.getId());
+        assertThat(response.get(0).getIsMine()).isTrue();
+        assertThat(response.get(1).getId()).isEqualTo(chat1.getId());
+        assertThat(response.get(1).getIsMine()).isFalse();
+        response = chatter.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        assertThat(response).hasSize(0);
+
+        ChatResponse chat3 = manager.createChatSuccess(roomId, new CreateChatRequest("안녕하세요 3", LATITUDE, LONGITUDE));
+        response = manager.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        assertThat(response).hasSize(1);
+        assertThat(response.get(0).getId()).isEqualTo(chat3.getId());
+        assertThat(response.get(0).getIsMine()).isTrue();
+        response = chatter.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        assertThat(response).hasSize(1);
+        assertThat(response.get(0).getId()).isEqualTo(chat3.getId());
+        assertThat(response.get(0).getIsMine()).isFalse();
+
+        TestClient visitor = createTestClient();
+        visitor.loginSuccess(KAKAO_AUTH_ID + 2L);
+        response = visitor.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        assertThat(response).hasSize(3);
+        assertThat(response.get(0).getId()).isEqualTo(chat3.getId());
+        assertThat(response.get(0).getIsMine()).isFalse();
+        assertThat(response.get(1).getId()).isEqualTo(chat2.getId());
+        assertThat(response.get(1).getIsMine()).isFalse();
+        assertThat(response.get(2).getId()).isEqualTo(chat1.getId());
+        assertThat(response.get(2).getIsMine()).isFalse();
     }
 
     @DisplayName("유저는 현재 위치를 기반으로 채팅방 목록을 조회할 수 있다.")

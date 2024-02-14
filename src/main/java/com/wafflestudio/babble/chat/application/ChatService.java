@@ -56,13 +56,6 @@ public class ChatService {
         return ChatRoomDetailDto.of(chatRoom, chatterCount, ChatsDto.of(myChatterId, chats));
     }
 
-    private static int sortByCreatedAtAndIdDesc(Chat a, Chat b) {
-        if (Objects.equals(b.getCreatedAt(), a.getCreatedAt())) {
-            return (int) (b.getId() - a.getId());
-        }
-        return (int) (b.getCreatedAt() - a.getCreatedAt());
-    }
-
     @Transactional(readOnly = true)
     public List<ChatRoomResponseDto> getNearbyRooms(Double latitude, Double longitude) {
         // TODO: 거리가 가까운 방들만 필터링하기!
@@ -79,6 +72,7 @@ public class ChatService {
         Long myChatterId = chatter.map(Chatter::getId).orElse(0L);
         List<ChatDto> chats = chatRepository.findAllByRoomAndIdGreaterThan(room, dto.getLatestChatId())
             .stream()
+            .sorted(ChatService::sortByCreatedAtAndIdDesc)
             .map(chat -> ChatDto.of(chat, chat.getChatter()))
             .collect(Collectors.toList());
         return ChatsDto.of(myChatterId, chats);
@@ -113,5 +107,12 @@ public class ChatService {
             .orElseThrow(() -> new ForbiddenException("아직 참여 중이지 않은 채팅방입니다."));
         Chat chat = chatRepository.save(Chat.create(chatRoom, chatter, dto.getContent()));
         return ChatDto.of(chat, chat.getChatter());
+    }
+
+    private static int sortByCreatedAtAndIdDesc(Chat a, Chat b) {
+        if (Objects.equals(b.getCreatedAt(), a.getCreatedAt())) {
+            return (int) (b.getId() - a.getId());
+        }
+        return (int) (b.getCreatedAt() - a.getCreatedAt());
     }
 }
