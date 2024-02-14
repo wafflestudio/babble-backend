@@ -8,5 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ChatRepository extends JpaRepository<Chat, Long> {
 
-   List<Chat> findAllByRoomAndIdGreaterThan(ChatRoom room, Long chatId);
+    List<Chat> findAllByRoom(ChatRoom room);
+
+    List<Chat> findAllByRoomAndIdGreaterThan(ChatRoom room, Long chatId);
 }

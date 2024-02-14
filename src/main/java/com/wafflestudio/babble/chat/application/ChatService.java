@@ -46,7 +46,7 @@ public class ChatService {
         ChatRoom chatRoom = chatRoomRepository.get(dto.getRoomId());
         // TODO: 거리가 너무 먼 경우에 대한 ForbiddenException 예외 처리 추가
         // TODO: 최근 N개만 보여주도록 수정?
-        List<ChatDto> chats = chatRepository.findAll().stream()
+        List<ChatDto> chats = chatRepository.findAllByRoom(chatRoom).stream()
             .sorted(ChatService::sortByCreatedAtAndIdDesc)
             .map(chat -> ChatDto.of(chat, chat.getChatter()))
             .collect(Collectors.toList());
