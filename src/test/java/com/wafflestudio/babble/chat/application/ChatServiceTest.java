@@ -146,35 +146,36 @@ public class ChatServiceTest extends ServiceTest {
         private static final String MANAGER_NICKNAME = NICKNAME;
 
         private Long roomId;
-        private Member member;
+        private String memberUserId;
 
         @BeforeEach
         public void setUp() {
             memberRepository.save(Member.create(USER_ID, KAKAO_AUTH_ID));
             roomId = chatService.createChatRoom(CreateChatRoomDto.of(USER_ID, MANAGER_NICKNAME, ROOM_NAME, HASHTAG, LATITUDE, LONGITUDE));
-            member = memberRepository.save(Member.create(USER_ID + "!", null));
+            Member member = memberRepository.save(Member.create(USER_ID + "!", null));
+            memberUserId = member.getUserId();
         }
 
         @Test
         @DisplayName("참여자가 될 수 있다")
         void success() {
-            ChatterDto dto = chatService.createChatter(CreateChatterDto.of(member.getUserId(), roomId, "토끼", LATITUDE, LONGITUDE));
+            ChatterDto dto = chatService.createChatter(CreateChatterDto.of(memberUserId, roomId, "토끼", LATITUDE, LONGITUDE));
             assertThat(dto).isNotNull();
         }
 
         @Test
         @DisplayName("이미 참여 중인 경우 참여자가 될 수 없다")
         void alreadyCreated() {
-            chatService.createChatter(CreateChatterDto.of(USER_ID, roomId, "토끼", LATITUDE, LONGITUDE));
+            chatService.createChatter(CreateChatterDto.of(memberUserId, roomId, "토끼", LATITUDE, LONGITUDE));
 
-            assertThatThrownBy(() -> chatService.createChatter(CreateChatterDto.of(USER_ID, roomId, "토끼!", LATITUDE, LONGITUDE)))
+            assertThatThrownBy(() -> chatService.createChatter(CreateChatterDto.of(memberUserId, roomId, "토끼!", LATITUDE, LONGITUDE)))
                 .isInstanceOf(BadRequestException.class);
         }
 
         @Test
         @DisplayName("다른 사람이 사용 중인 닉네임은 사용할 수 없다")
         void duplicateNickname() {
-            assertThatThrownBy(() -> chatService.createChatter(CreateChatterDto.of(USER_ID, roomId, MANAGER_NICKNAME, LATITUDE, LONGITUDE)))
+            assertThatThrownBy(() -> chatService.createChatter(CreateChatterDto.of(memberUserId, roomId, MANAGER_NICKNAME, LATITUDE, LONGITUDE)))
                 .isInstanceOf(BadRequestException.class);
         }
     }
