@@ -1,4 +1,4 @@
-package com.wafflestudio.babble.chat.domain;
+package com.wafflestudio.babble.chat.domain.chatroom;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

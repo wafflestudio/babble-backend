@@ -1,6 +1,6 @@
 package com.wafflestudio.babble.chat.application.dto;
 
-import com.wafflestudio.babble.chat.domain.Chatter;
+import com.wafflestudio.babble.chat.domain.chatter.Chatter;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.wafflestudio.babble.chat.application.dto;
 
-import com.wafflestudio.babble.chat.domain.ChatRoomHashTag;
+import com.wafflestudio.babble.chat.domain.chatroom.ChatRoomHashTag;
 import com.wafflestudio.babble.chat.domain.Location;
 
 import lombok.Getter;

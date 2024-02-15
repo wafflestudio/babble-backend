@@ -1,4 +1,4 @@
-package com.wafflestudio.babble.chat.domain;
+package com.wafflestudio.babble.chat.domain.chat;
 
 import java.util.List;
 import java.util.Optional;
@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.wafflestudio.babble.chat.domain.chatroom.ChatRoom;
 import com.wafflestudio.babble.common.exception.NotFoundException;
 
 @Repository

@@ -1,4 +1,4 @@
-package com.wafflestudio.babble.chat.domain;
+package com.wafflestudio.babble.chat.domain.chatroom;
 
 import lombok.Getter;
 

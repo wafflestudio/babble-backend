@@ -2,8 +2,8 @@ package com.wafflestudio.babble.chat.application.dto;
 
 import java.util.Objects;
 
-import com.wafflestudio.babble.chat.domain.Chat;
-import com.wafflestudio.babble.chat.domain.Chatter;
+import com.wafflestudio.babble.chat.domain.chat.Chat;
+import com.wafflestudio.babble.chat.domain.chatter.Chatter;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

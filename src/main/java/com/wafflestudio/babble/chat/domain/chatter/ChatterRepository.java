@@ -1,4 +1,4 @@
-package com.wafflestudio.babble.chat.domain;
+package com.wafflestudio.babble.chat.domain.chatter;
 
 import java.util.Optional;
 
@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.wafflestudio.babble.chat.domain.chatroom.ChatRoom;
 import com.wafflestudio.babble.member.domain.Member;
 
 @Repository

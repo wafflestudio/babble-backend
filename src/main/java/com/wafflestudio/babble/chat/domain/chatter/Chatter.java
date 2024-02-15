@@ -1,4 +1,4 @@
-package com.wafflestudio.babble.chat.domain;
+package com.wafflestudio.babble.chat.domain.chatter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,7 +9,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.wafflestudio.babble.chat.domain.chatroom.ChatRoom;
 import com.wafflestudio.babble.common.domain.BaseEntity;
+import com.wafflestudio.babble.member.domain.Member;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -20,7 +22,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Chat extends BaseEntity {
+public class Chatter extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,25 +33,26 @@ public class Chat extends BaseEntity {
     private ChatRoom room;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chatter_id", nullable = false)
-    private Chatter chatter;
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @Column(nullable = false)
-    private String content;
+    private String nickname; // TODO: 세부 규칙이 정해지면, 정규표현식으로 예외 처리하기
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_chat_id")
-    private Chat parentChat;
-
-    public static Chat create(ChatRoom room, Chatter chatter, String content) {
-        return new Chat(0L, room, chatter, content, null);
+    public static Chatter create(ChatRoom room, Member member, String nickname) {
+        return new Chatter(0L, room, member, nickname);
     }
 
-    public static Chat createChild(ChatRoom room, Chatter chatter, String content, Chat parentChat) {
-        return new Chat(0L, room, chatter, content, parentChat);
+    public Long getRoomId() {
+        return room.getId();
     }
 
-    public boolean hasParent() {
-        return parentChat != null;
+    public Long getMemberId() {
+        return member.getId();
+    }
+
+    public void updateNickname(String nickname) {
+         // TODO: 세부 규칙이 정해지면, 정규표현식으로 예외 처리하기
+        this.nickname = nickname;
     }
 }

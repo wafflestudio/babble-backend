@@ -1,6 +1,6 @@
 package com.wafflestudio.babble.acceptance;
 
-import static com.wafflestudio.babble.chat.domain.ChatRoomHashTag.LECTURE_ROOM;
+import static com.wafflestudio.babble.chat.domain.chatroom.ChatRoomHashTag.LECTURE_ROOM;
 import static com.wafflestudio.babble.testutil.TestFixtures.HASHTAG;
 import static com.wafflestudio.babble.testutil.TestFixtures.HASHTAG_DISPLAYNAME;
 import static com.wafflestudio.babble.testutil.TestFixtures.KAKAO_AUTH_ID;

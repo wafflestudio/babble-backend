@@ -1,6 +1,6 @@
 package com.wafflestudio.babble.chat.application.dto;
 
-import com.wafflestudio.babble.chat.domain.Chat;
+import com.wafflestudio.babble.chat.domain.chat.Chat;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

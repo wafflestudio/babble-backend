@@ -1,6 +1,6 @@
-package com.wafflestudio.babble.chat.domain;
+package com.wafflestudio.babble.chat.domain.chatter;
 
-import static com.wafflestudio.babble.chat.domain.ChatRoomHashTag.LECTURE_ROOM;
+import static com.wafflestudio.babble.chat.domain.chatroom.ChatRoomHashTag.LECTURE_ROOM;
 import static com.wafflestudio.babble.testutil.TestFixtures.FUTURE_UNIX_TIME_MS;
 import static com.wafflestudio.babble.testutil.TestFixtures.LOCATION;
 import static com.wafflestudio.babble.testutil.TestFixtures.NICKNAME;
@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.wafflestudio.babble.chat.domain.chatroom.ChatRoom;
+import com.wafflestudio.babble.chat.domain.chatroom.ChatRoomRepository;
 import com.wafflestudio.babble.member.domain.Member;
 import com.wafflestudio.babble.member.domain.MemberRepository;
 import com.wafflestudio.babble.testutil.RepositoryTest;

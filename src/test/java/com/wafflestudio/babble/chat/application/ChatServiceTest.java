@@ -30,10 +30,10 @@ import com.wafflestudio.babble.chat.application.dto.CreateChatDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatRoomDto;
 import com.wafflestudio.babble.chat.application.dto.CreateChatterDto;
 import com.wafflestudio.babble.chat.application.dto.GetChatRoomDto;
-import com.wafflestudio.babble.chat.domain.ChatRoom;
-import com.wafflestudio.babble.chat.domain.ChatRoomRepository;
-import com.wafflestudio.babble.chat.domain.Chatter;
-import com.wafflestudio.babble.chat.domain.ChatterRepository;
+import com.wafflestudio.babble.chat.domain.chatroom.ChatRoom;
+import com.wafflestudio.babble.chat.domain.chatroom.ChatRoomRepository;
+import com.wafflestudio.babble.chat.domain.chatter.Chatter;
+import com.wafflestudio.babble.chat.domain.chatter.ChatterRepository;
 import com.wafflestudio.babble.common.exception.BadRequestException;
 import com.wafflestudio.babble.common.exception.ForbiddenException;
 import com.wafflestudio.babble.member.domain.Member;
@@ -165,16 +165,16 @@ public class ChatServiceTest extends ServiceTest {
         @Test
         @DisplayName("이미 참여 중인 경우 참여자가 될 수 없다")
         void alreadyCreated() {
-            chatService.createChatter(CreateChatterDto.of(member.getUserId(), roomId, "토끼", LATITUDE, LONGITUDE));
+            chatService.createChatter(CreateChatterDto.of(USER_ID, roomId, "토끼", LATITUDE, LONGITUDE));
 
-            assertThatThrownBy(() -> chatService.createChatter(CreateChatterDto.of(member.getUserId(), roomId, "토끼!", LATITUDE, LONGITUDE)))
+            assertThatThrownBy(() -> chatService.createChatter(CreateChatterDto.of(USER_ID, roomId, "토끼!", LATITUDE, LONGITUDE)))
                 .isInstanceOf(BadRequestException.class);
         }
 
         @Test
         @DisplayName("다른 사람이 사용 중인 닉네임은 사용할 수 없다")
         void duplicateNickname() {
-            assertThatThrownBy(() -> chatService.createChatter(CreateChatterDto.of(member.getUserId(), roomId, MANAGER_NICKNAME, LATITUDE, LONGITUDE)))
+            assertThatThrownBy(() -> chatService.createChatter(CreateChatterDto.of(USER_ID, roomId, MANAGER_NICKNAME, LATITUDE, LONGITUDE)))
                 .isInstanceOf(BadRequestException.class);
         }
     }

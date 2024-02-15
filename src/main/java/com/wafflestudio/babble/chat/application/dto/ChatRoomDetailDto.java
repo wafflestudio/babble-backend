@@ -2,7 +2,7 @@ package com.wafflestudio.babble.chat.application.dto;
 
 import java.util.List;
 
-import com.wafflestudio.babble.chat.domain.ChatRoom;
+import com.wafflestudio.babble.chat.domain.chatroom.ChatRoom;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
