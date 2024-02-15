@@ -48,7 +48,7 @@ public class ChatService {
         // TODO: 최근 N개만 보여주도록 수정?
         List<ChatDto> chats = chatRepository.findAllByRoom(chatRoom).stream()
             .sorted(ChatService::sortByCreatedAtAndIdDesc)
-            .map(chat -> ChatDto.of(chat, chat.getChatter()))
+            .map(ChatDto::of)
             .collect(Collectors.toList());
         int chatterCount = chatterRepository.countByRoom(chatRoom);
         Optional<Chatter> chatter = chatterRepository.findByRoomIdAndUserId(chatRoom.getId(), dto.getAuthUserId());
@@ -73,7 +73,7 @@ public class ChatService {
         List<ChatDto> chats = chatRepository.findAllByRoomAndIdGreaterThan(room, dto.getLatestChatId())
             .stream()
             .sorted(ChatService::sortByCreatedAtAndIdDesc)
-            .map(chat -> ChatDto.of(chat, chat.getChatter()))
+            .map(ChatDto::of)
             .collect(Collectors.toList());
         return ChatsDto.of(myChatterId, chats);
     }
@@ -105,8 +105,13 @@ public class ChatService {
         // TODO: 거리가 너무 먼 경우에 대한 ForbiddenException 예외 처리 추가
         Chatter chatter = chatterRepository.findByRoomAndMember(chatRoom, member)
             .orElseThrow(() -> new ForbiddenException("아직 참여 중이지 않은 채팅방입니다."));
-        Chat chat = chatRepository.save(Chat.create(chatRoom, chatter, dto.getContent()));
-        return ChatDto.of(chat, chat.getChatter());
+        if (!dto.isChild()) {
+            Chat chat = chatRepository.save(Chat.create(chatRoom, chatter, dto.getContent()));
+            return ChatDto.of(chat);
+        }
+        Chat parentChat = chatRepository.getByIdAndRoom(dto.getParentChatId(), chatRoom);
+        Chat chat = chatRepository.save(Chat.createChild(chatRoom, chatter, dto.getContent(), parentChat));
+        return ChatDto.of(chat);
     }
 
     private static int sortByCreatedAtAndIdDesc(Chat a, Chat b) {

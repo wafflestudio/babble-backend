@@ -37,7 +37,19 @@ public class Chat extends BaseEntity {
     @Column(nullable = false)
     private String content;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_chat_id")
+    private Chat parentChat;
+
     public static Chat create(ChatRoom room, Chatter chatter, String content) {
-        return new Chat(0L, room, chatter, content);
+        return new Chat(0L, room, chatter, content, null);
+    }
+
+    public static Chat createChild(ChatRoom room, Chatter chatter, String content, Chat parentChat) {
+        return new Chat(0L, room, chatter, content, parentChat);
+    }
+
+    public boolean hasParent() {
+        return parentChat != null;
     }
 }

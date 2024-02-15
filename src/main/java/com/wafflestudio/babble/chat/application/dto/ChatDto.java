@@ -1,9 +1,6 @@
 package com.wafflestudio.babble.chat.application.dto;
 
-import java.util.Objects;
-
 import com.wafflestudio.babble.chat.domain.Chat;
-import com.wafflestudio.babble.chat.domain.Chatter;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -14,17 +11,21 @@ import lombok.RequiredArgsConstructor;
 @EqualsAndHashCode
 public class ChatDto {
 
-    private final Long id;
-    private final Long chatterId;
-    private final String chatterNickname;
-    private final String content;
-    private final Long createdTimeInSec;
+    private final CommonChatDto common;
+    private final CommonChatDto parent;
 
-    public static ChatDto of(Chat chat, Chatter chatter) {
-        return new ChatDto(chat.getId(), chatter.getId(), chatter.getNickname(), chat.getContent(), chat.getCreatedAtInSec());
+    public static ChatDto of(Chat chat) {
+        if (chat.hasParent()) {
+            return new ChatDto(CommonChatDto.of(chat), CommonChatDto.of(chat.getParentChat()));
+        }
+        return new ChatDto(CommonChatDto.of(chat), null);
     }
 
-    public boolean isMyChat(Long myChatterId) {
-        return Objects.equals(myChatterId, this.chatterId);
+    public boolean hasParent() {
+        return parent != null && parent.getId() > 0L;
+    }
+
+    public Long getChatterId() {
+        return common.getChatterId();
     }
 }

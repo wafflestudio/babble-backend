@@ -45,7 +45,7 @@ public class ChatAcceptanceTest extends AcceptanceTest {
         void setup() {
             manager = createTestClient();
             manager.loginSuccess(KAKAO_AUTH_ID);
-            roomId  = manager.createRoom(new CreateChatRoomRequest(NICKNAME, ROOM_NAME, HASHTAG, LATITUDE, LONGITUDE));
+            roomId = manager.createRoom(new CreateChatRoomRequest(NICKNAME, ROOM_NAME, HASHTAG, LATITUDE, LONGITUDE));
         }
 
         @DisplayName("방장이 된 유저가 해당 방에 들어가면 이미 참여 중인 것으로 뜨며, 채팅을 만들 수 있다")
@@ -186,6 +186,46 @@ public class ChatAcceptanceTest extends AcceptanceTest {
         assertThat(response.get(1).getIsMine()).isFalse();
         assertThat(response.get(2).getId()).isEqualTo(chat1.getId());
         assertThat(response.get(2).getIsMine()).isFalse();
+    }
+
+    @DisplayName("유저는 생성된 채팅에 답장을 달 수 있다.")
+    @Test
+    void parentChat() {
+        TestClient manager = createTestClient();
+        manager.loginSuccess(KAKAO_AUTH_ID);
+        Long roomId = manager.createRoom(new CreateChatRoomRequest(NICKNAME, ROOM_NAME, HASHTAG, LATITUDE, LONGITUDE));
+
+        TestClient chatter = createTestClient();
+        chatter.loginSuccess(KAKAO_AUTH_ID + 1L);
+        chatter.createChatter(roomId, new CreateChatterRequest("검은고양이", LATITUDE, LONGITUDE));
+
+        ChatResponse parentChat = manager.createChatSuccess(roomId, new CreateChatRequest("안녕하세요", LATITUDE, LONGITUDE));
+        assertThat(parentChat.getParent()).isNull();
+        ChatResponse childChat1 = manager.createChatSuccess(roomId, new CreateChatRequest("본인의 답장", parentChat.getId(), LATITUDE, LONGITUDE));
+        assertThat(childChat1.getParent().getId()).isEqualTo(parentChat.getId());
+        ChatResponse childChat2 = chatter.createChatSuccess(roomId, new CreateChatRequest("타인의 답장", parentChat.getId(), LATITUDE, LONGITUDE));
+        assertThat(childChat2.getParent().getId()).isEqualTo(parentChat.getId());
+
+        List<ChatResponse> response = manager.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        assertThat(response).hasSize(3);
+        assertThat(response.get(0).getId()).isEqualTo(childChat2.getId());
+        assertThat(response.get(0).getContent()).isEqualTo("타인의 답장");
+        assertThat(response.get(0).getIsMine()).isFalse();
+        assertThat(response.get(0).getParent().getId()).isEqualTo(parentChat.getId());
+        assertThat(response.get(0).getParent().getContent()).isEqualTo("안녕하세요");
+        assertThat(response.get(0).getParent().getIsMine()).isTrue();
+
+        assertThat(response.get(1).getId()).isEqualTo(childChat1.getId());
+        assertThat(response.get(1).getContent()).isEqualTo("본인의 답장");
+        assertThat(response.get(1).getIsMine()).isTrue();
+        assertThat(response.get(1).getParent().getId()).isEqualTo(parentChat.getId());
+        assertThat(response.get(1).getParent().getContent()).isEqualTo("안녕하세요");
+        assertThat(response.get(1).getParent().getIsMine()).isTrue();
+
+        assertThat(response.get(2).getId()).isEqualTo(parentChat.getId());
+        assertThat(response.get(2).getContent()).isEqualTo("안녕하세요");
+        assertThat(response.get(2).getIsMine()).isTrue();
+        assertThat(response.get(2).getParent()).isNull();
     }
 
     @DisplayName("유저는 현재 위치를 기반으로 채팅방 목록을 조회할 수 있다.")
