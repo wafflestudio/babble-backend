@@ -12,14 +12,13 @@ import javax.persistence.ManyToOne;
 import com.wafflestudio.babble.chat.domain.chatroom.ChatRoom;
 import com.wafflestudio.babble.chat.domain.chatter.Chatter;
 import com.wafflestudio.babble.common.domain.BaseEntity;
+import com.wafflestudio.babble.common.exception.BadRequestException;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Chat extends BaseEntity {
@@ -42,6 +41,25 @@ public class Chat extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_chat_id")
     private Chat parentChat;
+
+    private Chat(Long id, ChatRoom room, Chatter chatter, String content, Chat parentChat) {
+        this.id = id;
+        this.room = room;
+        this.chatter = chatter;
+        this.content = getValidatedContent(content);
+        this.parentChat = parentChat;
+    }
+
+    private static String getValidatedContent(String content) {
+        content = content.trim();
+        if (content.isEmpty()) {
+            throw new BadRequestException("채팅은 공백일 수 없다.");
+        }
+        if (content.length() > 2000) {
+            throw new BadRequestException("채팅은 2000글자 이내여야 한다.");
+        }
+        return content;
+    }
 
     public static Chat create(ChatRoom room, Chatter chatter, String content) {
         return new Chat(0L, room, chatter, content, null);
