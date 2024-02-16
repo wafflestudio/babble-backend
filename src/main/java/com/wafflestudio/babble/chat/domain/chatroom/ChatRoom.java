@@ -10,7 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 
-import com.wafflestudio.babble.chat.domain.Location;
+import com.wafflestudio.babble.location.domain.Location;
 import com.wafflestudio.babble.common.domain.BaseEntity;
 import com.wafflestudio.babble.member.domain.Member;
 

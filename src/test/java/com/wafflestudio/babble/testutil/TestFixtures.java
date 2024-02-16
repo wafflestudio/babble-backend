@@ -1,6 +1,6 @@
 package com.wafflestudio.babble.testutil;
 
-import com.wafflestudio.babble.chat.domain.Location;
+import com.wafflestudio.babble.location.domain.Location;
 
 public class TestFixtures {
 
