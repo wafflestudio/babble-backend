@@ -1,11 +1,16 @@
 package com.wafflestudio.babble.location.domain;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import com.wafflestudio.babble.common.exception.BadRequestException;
@@ -52,5 +57,24 @@ public class LocationTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("경도는 -180 ~ 180 사이의 값이어야 합니다.");
         }
+    }
+
+    @ParameterizedTest(name = "{0}~{1} : {2}m")
+    @DisplayName("두 위치 사이의 거리를 m 단위로 계산한다")
+    @MethodSource("calculateDistanceTestParameters")
+    void calculateDistanceTest(Location location, Location target, double expected) {
+        double actual = location.calculateDistance(target);
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    private static Stream<Arguments> calculateDistanceTestParameters() {
+        return Stream.of(
+            Arguments.of(new Location(10.0, 10.0), new Location(10.0, 10.0), 0d),
+            Arguments.of(new Location(10.0, 10.0), new Location(10.0, 10.1), 10950.562543608205d),
+            Arguments.of(new Location(10.0, 10.1), new Location(10.0, 10.0), 10950.562543608205d),
+            Arguments.of(new Location(10.0, 10.0), new Location(10.1, 10.0), 11119.492664455835),
+            Arguments.of(new Location(10.1, 10.0), new Location(10.0, 10.0), 11119.492664455835),
+            Arguments.of(new Location(10.0, 10.0), new Location(50.0, 50.0), 5763650.056682031)
+        );
     }
 }

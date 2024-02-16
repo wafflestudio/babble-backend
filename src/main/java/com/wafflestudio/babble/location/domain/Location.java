@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Location {
 
+    public static final int RADIUS_OF_EARTH_IN_METERS = 6371 * 1000;
+
     @Column(nullable = false)
     private Double latitude;
 
@@ -29,5 +31,26 @@ public class Location {
         }
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    /**
+     * <a href="https://en.wikipedia.org/wiki/Haversine_formula">Haversine 공식</a>으로 계산한 두 지점 사이의 거리 (m 단위)
+     */
+    public double calculateDistance(Location location) {
+        double latitudeDifference = degreeToRadius(location.latitude - this.latitude);
+        double longitudeDifference = degreeToRadius(location.longitude - this.longitude);
+        double value = Math.sin(latitudeDifference / 2) * Math.sin(latitudeDifference / 2)
+            + Math.cos(degreeToRadius(this.latitude)) * Math.cos(degreeToRadius(location.latitude))
+            * Math.sin(longitudeDifference / 2) * Math.sin(longitudeDifference / 2);
+        return RADIUS_OF_EARTH_IN_METERS * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
+    }
+
+    private double degreeToRadius(Double deg) {
+        return deg * (Math.PI / 180);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[위도=%.1f, 경도=%.1f]", this.latitude, this.longitude);
     }
 }
