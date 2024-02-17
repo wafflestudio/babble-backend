@@ -1,0 +1,53 @@
+name: Push to Prod
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  AWS_REGION: ap-northeast-2 # seoul
+  ECR_REPOSITORY: babble/babble-server
+
+jobs:
+  push-prod:
+    name: Push to Prod
+    runs-on: ubuntu-latest
+    environment: prod # where secrets are stored
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: "11"
+          distribution: "adopt"
+      - name: Test & Build with 'test' profile
+        run: ./gradlew build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and push image
+        env:
+          IMAGE_TAG: ${{ github.run_number }} # unique for each deployment
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . \
+                      --build-arg PROFILE=prod              \
+                      --build-arg JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}              \
+                      --build-arg JWT_VALIDITY=${{ secrets.JWT_VALIDITY }}              \
+                      --build-arg MYSQL_URL=${{ secrets.MYSQL_URL }}              \
+                      --build-arg MYSQL_DB=${{ secrets.MYSQL_DB }}              \
+                      --build-arg MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}              \
+                      --build-arg MYSQL_PASSWORD='${{ secrets.MYSQL_PASSWORD }}'              \
+                      --build-arg TOO_CLOSE_LIMIT=${{ secrets.TOO_CLOSE_LIMIT }}
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
