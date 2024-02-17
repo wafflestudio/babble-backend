@@ -60,9 +60,9 @@ public class LocationTest {
     }
 
     @ParameterizedTest(name = "{0}~{1} : {2}m")
-    @DisplayName("두 위치 사이의 거리를 m 단위로 계산한다")
+    @DisplayName("두 위치 사이의 거리를 m 단위로 계산한다 (소수점은 버림)")
     @MethodSource("calculateDistanceTestParameters")
-    void calculateDistanceTest(Location location, Location target, double expected) {
+    void calculateDistanceTest(Location location, Location target, int expected) {
         double actual = location.calculateDistance(target);
         assertThat(actual).isEqualTo(expected);
     }
@@ -70,13 +70,13 @@ public class LocationTest {
     private static Stream<Arguments> calculateDistanceTestParameters() {
         return Stream.of(
             Arguments.of(new Location(10.0, 10.0), new Location(10.0, 10.0), 0),
-            Arguments.of(new Location(10.0, 10.0), new Location(10.0, 10.1), 10950.562543608205),
-            Arguments.of(new Location(10.0, 10.1), new Location(10.0, 10.0), 10950.562543608205),
-            Arguments.of(new Location(10.0, 10.0), new Location(10.1, 10.0), 11119.492664455835),
-            Arguments.of(new Location(10.1, 10.0), new Location(10.0, 10.0), 11119.492664455835),
-            Arguments.of(new Location(10.0, 10.0), new Location(50.0, 50.0), 5763650.056682031),
-            Arguments.of(new Location(37.5, 127.0), new Location(37.504, 127.0), 444.77970657798846),
-            Arguments.of(new Location(37.5, 127.0), new Location(37.505, 127.0), 555.9746332230782)
+            Arguments.of(new Location(10.0, 10.0), new Location(10.0, 10.1), 10950),
+            Arguments.of(new Location(10.0, 10.1), new Location(10.0, 10.0), 10950),
+            Arguments.of(new Location(10.0, 10.0), new Location(10.1, 10.0), 11119),
+            Arguments.of(new Location(10.1, 10.0), new Location(10.0, 10.0), 11119),
+            Arguments.of(new Location(10.0, 10.0), new Location(50.0, 50.0), 5763650),
+            Arguments.of(new Location(37.5, 127.0), new Location(37.504, 127.0), 444),
+            Arguments.of(new Location(37.5, 127.0), new Location(37.505, 127.0), 555)
         );
     }
 }

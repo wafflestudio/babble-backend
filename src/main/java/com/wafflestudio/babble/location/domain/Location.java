@@ -36,13 +36,13 @@ public class Location {
     /**
      * <a href="https://en.wikipedia.org/wiki/Haversine_formula">Haversine 공식</a>으로 계산한 두 지점 사이의 거리 (m 단위)
      */
-    public double calculateDistance(Location location) {
+    public int calculateDistance(Location location) {
         double latitudeDifference = degreeToRadius(location.latitude - this.latitude);
         double longitudeDifference = degreeToRadius(location.longitude - this.longitude);
         double value = Math.sin(latitudeDifference / 2) * Math.sin(latitudeDifference / 2)
             + Math.cos(degreeToRadius(this.latitude)) * Math.cos(degreeToRadius(location.latitude))
             * Math.sin(longitudeDifference / 2) * Math.sin(longitudeDifference / 2);
-        return RADIUS_OF_EARTH_IN_METERS * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
+        return (int) (RADIUS_OF_EARTH_IN_METERS * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value)));
     }
 
     private double degreeToRadius(Double deg) {

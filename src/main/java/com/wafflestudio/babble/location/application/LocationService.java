@@ -9,9 +9,9 @@ import com.wafflestudio.babble.location.domain.Location;
 @Service
 public class LocationService {
 
-    private final double validationLimit;
+    private final int validationLimit;
 
-    public LocationService(@Value("${location.validation-limit}") double validationLimit) {
+    public LocationService(@Value("${location.validation-limit}") int validationLimit) {
         this.validationLimit = validationLimit;
     }
 

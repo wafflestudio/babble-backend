@@ -15,8 +15,11 @@ public class ChatRoomResponseDto {
     private final String name;
     private final ChatRoomHashTag hashTag;
     private final Location location;
+    private final Integer distance;
 
-    public static ChatRoomResponseDto of(ChatRoom room) {
-        return new ChatRoomResponseDto(room.getId(), room.getRoomName(), room.getHashTag(), room.getLocation());
+    public static ChatRoomResponseDto of(ChatRoom room, Location userLocation) {
+        Location roomLocation = room.getLocation();
+        int distance = userLocation.calculateDistance(roomLocation);
+        return new ChatRoomResponseDto(room.getId(), room.getRoomName(), room.getHashTag(), roomLocation, distance);
     }
 }

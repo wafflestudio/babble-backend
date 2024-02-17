@@ -28,6 +28,7 @@ import com.wafflestudio.babble.chat.domain.chatter.Nickname;
 import com.wafflestudio.babble.common.exception.BadRequestException;
 import com.wafflestudio.babble.common.exception.ForbiddenException;
 import com.wafflestudio.babble.location.application.LocationService;
+import com.wafflestudio.babble.location.domain.Location;
 import com.wafflestudio.babble.member.domain.Member;
 import com.wafflestudio.babble.member.domain.MemberRepository;
 
@@ -47,7 +48,8 @@ public class ChatService {
     @Transactional(readOnly = true)
     public ChatRoomDetailDto getChatRoom(GetChatRoomDto dto) {
         ChatRoom chatRoom = chatRoomRepository.get(dto.getRoomId());
-        locationService.validateClose(dto.getLocation(), chatRoom.getLocation());
+        Location userLocation = dto.getLocation();
+        locationService.validateClose(userLocation, chatRoom.getLocation());
         // TODO: 최근 N개만 보여주도록 수정?
         List<ChatDto> chats = chatRepository.findAllByRoom(chatRoom).stream()
             .sorted(ChatService::sortByCreatedAtAndIdDesc)
@@ -56,14 +58,15 @@ public class ChatService {
         int chatterCount = chatterRepository.countByRoom(chatRoom);
         Optional<Chatter> chatter = chatterRepository.findByRoomIdAndUserId(chatRoom.getId(), dto.getAuthUserId());
         Long myChatterId = chatter.map(Chatter::getId).orElse(0L);
-        return ChatRoomDetailDto.of(chatRoom, chatterCount, ChatsDto.of(myChatterId, chats));
+        return ChatRoomDetailDto.of(chatRoom, userLocation, chatterCount, ChatsDto.of(myChatterId, chats));
     }
 
     @Transactional(readOnly = true)
     public List<ChatRoomResponseDto> getNearbyRooms(Double latitude, Double longitude) {
+        Location userLocation = new Location(latitude, longitude);
         // TODO: 거리가 가까운 방들만 필터링하기!
         return chatRoomRepository.findAll().stream()
-            .map(ChatRoomResponseDto::of)
+            .map(room -> ChatRoomResponseDto.of(room, userLocation))
             .collect(Collectors.toList());
     }
 
