@@ -69,12 +69,14 @@ public class LocationTest {
 
     private static Stream<Arguments> calculateDistanceTestParameters() {
         return Stream.of(
-            Arguments.of(new Location(10.0, 10.0), new Location(10.0, 10.0), 0d),
-            Arguments.of(new Location(10.0, 10.0), new Location(10.0, 10.1), 10950.562543608205d),
-            Arguments.of(new Location(10.0, 10.1), new Location(10.0, 10.0), 10950.562543608205d),
+            Arguments.of(new Location(10.0, 10.0), new Location(10.0, 10.0), 0),
+            Arguments.of(new Location(10.0, 10.0), new Location(10.0, 10.1), 10950.562543608205),
+            Arguments.of(new Location(10.0, 10.1), new Location(10.0, 10.0), 10950.562543608205),
             Arguments.of(new Location(10.0, 10.0), new Location(10.1, 10.0), 11119.492664455835),
             Arguments.of(new Location(10.1, 10.0), new Location(10.0, 10.0), 11119.492664455835),
-            Arguments.of(new Location(10.0, 10.0), new Location(50.0, 50.0), 5763650.056682031)
+            Arguments.of(new Location(10.0, 10.0), new Location(50.0, 50.0), 5763650.056682031),
+            Arguments.of(new Location(37.5, 127.0), new Location(37.504, 127.0), 444.77970657798846),
+            Arguments.of(new Location(37.5, 127.0), new Location(37.505, 127.0), 555.9746332230782)
         );
     }
 }

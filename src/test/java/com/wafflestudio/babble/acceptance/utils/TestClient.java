@@ -85,8 +85,15 @@ public class TestClient {
         return response.as(NearByChatRoomsResponse.class).getRooms();
     }
 
-    public GetChatRoomResponse getChatRoom(Long roomId, Double latitude, Double longitude) {
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
+    public GetChatRoomResponse getChatRoomSuccess(Long roomId, Double latitude, Double longitude) {
+        ExtractableResponse<Response> response = getChatRoom(roomId, latitude, longitude);
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        return response.as(GetChatRoomResponse.class);
+    }
+
+    public ExtractableResponse<Response> getChatRoom(Long roomId, Double latitude, Double longitude) {
+        return RestAssured.given().log().all()
             .auth().oauth2(this.accessToken)
             .param("latitude", latitude)
             .param("longitude", longitude)
@@ -94,13 +101,16 @@ public class TestClient {
             .get("/api/chat/rooms/" + roomId)
             .then().log().all()
             .extract();
-
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-        return response.as(GetChatRoomResponse.class);
     }
 
-    public ChatterResponse createChatter(Long roomId, CreateChatterRequest body) {
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
+    public ChatterResponse createChatterSuccess(Long roomId, CreateChatterRequest body) {
+        ExtractableResponse<Response> response = createChatter(roomId, body);
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+        return response.as(ChatterResponse.class);
+    }
+
+    public ExtractableResponse<Response> createChatter(Long roomId, CreateChatterRequest body) {
+        return RestAssured.given().log().all()
             .auth().oauth2(this.accessToken)
             .body(body)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -108,20 +118,10 @@ public class TestClient {
             .post("/api/chat/rooms/" + roomId + "/chatters")
             .then().log().all()
             .extract();
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
-        return response.as(ChatterResponse.class);
     }
 
-    public ChatsResponse getChats(Long roomId, Double latitude, Double longitude) {
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .auth().oauth2(this.accessToken)
-            .param("latestChatId", latestChatIdMap.getOrDefault(roomId, 0L))
-            .param("latitude", latitude)
-            .param("longitude", longitude)
-            .when()
-            .get("/api/chat/rooms/" + roomId + "/chats")
-            .then().log().all()
-            .extract();
+    public ChatsResponse getChatsSuccess(Long roomId, Double latitude, Double longitude) {
+        ExtractableResponse<Response> response = getChats(roomId, latitude, longitude);
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
         ChatsResponse chatsResponse = response.as(ChatsResponse.class);
@@ -130,6 +130,18 @@ public class TestClient {
             latestChatIdMap.put(roomId, chats.get(0).getId());
         }
         return chatsResponse;
+    }
+
+    public ExtractableResponse<Response> getChats(Long roomId, Double latitude, Double longitude) {
+        return RestAssured.given().log().all()
+            .auth().oauth2(this.accessToken)
+            .param("latestChatId", latestChatIdMap.getOrDefault(roomId, 0L))
+            .param("latitude", latitude)
+            .param("longitude", longitude)
+            .when()
+            .get("/api/chat/rooms/" + roomId + "/chats")
+            .then().log().all()
+            .extract();
     }
 
     public ChatResponse createChatSuccess(Long roomId, CreateChatRequest body) {

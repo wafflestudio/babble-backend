@@ -27,6 +27,7 @@ import com.wafflestudio.babble.chat.domain.chatter.ChatterRepository;
 import com.wafflestudio.babble.chat.domain.chatter.Nickname;
 import com.wafflestudio.babble.common.exception.BadRequestException;
 import com.wafflestudio.babble.common.exception.ForbiddenException;
+import com.wafflestudio.babble.location.application.LocationService;
 import com.wafflestudio.babble.member.domain.Member;
 import com.wafflestudio.babble.member.domain.MemberRepository;
 
@@ -37,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class ChatService {
 
+    private final LocationService locationService;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatterRepository chatterRepository;
     private final ChatRepository chatRepository;
@@ -45,7 +47,7 @@ public class ChatService {
     @Transactional(readOnly = true)
     public ChatRoomDetailDto getChatRoom(GetChatRoomDto dto) {
         ChatRoom chatRoom = chatRoomRepository.get(dto.getRoomId());
-        // TODO: 거리가 너무 먼 경우에 대한 ForbiddenException 예외 처리 추가
+        locationService.validateClose(dto.getLocation(), chatRoom.getLocation());
         // TODO: 최근 N개만 보여주도록 수정?
         List<ChatDto> chats = chatRepository.findAllByRoom(chatRoom).stream()
             .sorted(ChatService::sortByCreatedAtAndIdDesc)
@@ -68,7 +70,7 @@ public class ChatService {
     @Transactional(readOnly = true)
     public ChatsDto getLatestChats(GetLatestChatsDto dto) {
         ChatRoom room = chatRoomRepository.get(dto.getRoomId());
-        // TODO: 거리가 너무 먼 경우에 대한 ForbiddenException 예외 처리 추가
+        locationService.validateClose(dto.getLocation(), room.getLocation());
         Optional<Chatter> chatter = chatterRepository.findByRoomIdAndUserId(room.getId(), dto.getAuthUserId());
         Long myChatterId = chatter.map(Chatter::getId).orElse(0L);
         List<ChatDto> chats = chatRepository.findAllByRoomAndIdGreaterThan(room, dto.getLatestChatId())
@@ -88,6 +90,7 @@ public class ChatService {
 
     public ChatterDto createChatter(CreateChatterDto dto) {
         ChatRoom chatRoom = chatRoomRepository.get(dto.getRoomId());
+        locationService.validateClose(dto.getLocation(), chatRoom.getLocation());
         Member member = memberRepository.getByUserId(dto.getAuthUserId());
         if (chatterRepository.existsByRoomAndMember(chatRoom, member)) {
             throw new BadRequestException("이미 참여 중인 채팅방입니다");
@@ -95,7 +98,6 @@ public class ChatService {
         if (chatterRepository.existsByRoomAndNickname(chatRoom, new Nickname(dto.getNickname()))) {
             throw new BadRequestException("이미 사용 중인 닉네임입니다.");
         }
-        // TODO: 거리가 너무 먼 경우에 대한 ForbiddenException 예외 처리 추가
         Chatter chatter = chatterRepository.save(Chatter.create(chatRoom, member, dto.getNickname()));
         return ChatterDto.of(chatter);
     }
@@ -103,7 +105,7 @@ public class ChatService {
     public ChatDto createChat(CreateChatDto dto) {
         Member member = memberRepository.getByUserId(dto.getAuthUserId());
         ChatRoom chatRoom = chatRoomRepository.get(dto.getRoomId());
-        // TODO: 거리가 너무 먼 경우에 대한 ForbiddenException 예외 처리 추가
+        locationService.validateClose(dto.getLocation(), chatRoom.getLocation());
         Chatter chatter = chatterRepository.findByRoomAndMember(chatRoom, member)
             .orElseThrow(() -> new ForbiddenException("아직 참여 중이지 않은 채팅방입니다."));
         if (!dto.isChild()) {

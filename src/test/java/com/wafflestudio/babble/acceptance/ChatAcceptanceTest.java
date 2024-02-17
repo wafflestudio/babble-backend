@@ -51,7 +51,7 @@ public class ChatAcceptanceTest extends AcceptanceTest {
         @DisplayName("방장이 된 유저가 해당 방에 들어가면 이미 참여 중인 것으로 뜨며, 채팅을 만들 수 있다")
         @Test
         void createAndGetChatRoom() {
-            GetChatRoomResponse response = manager.getChatRoom(roomId, LATITUDE, LONGITUDE);
+            GetChatRoomResponse response = manager.getChatRoomSuccess(roomId, LATITUDE, LONGITUDE);
             assertThat(response.getRoom().getId()).isEqualTo(roomId);
             assertThat(response.getIsChatter()).isTrue();
             checkRoom(response.getRoom());
@@ -61,7 +61,7 @@ public class ChatAcceptanceTest extends AcceptanceTest {
             ChatResponse chat2 = manager.createChatSuccess(roomId, new CreateChatRequest("달이 아름답네요!", LATITUDE, LONGITUDE));
             ChatResponse chat3 = manager.createChatSuccess(roomId, new CreateChatRequest("그럼 이만!", LATITUDE, LONGITUDE));
 
-            response = manager.getChatRoom(roomId, LATITUDE, LONGITUDE);
+            response = manager.getChatRoomSuccess(roomId, LATITUDE, LONGITUDE);
             assertThat(response.getRoom().getId()).isEqualTo(roomId);
             assertThat(response.getIsChatter()).isTrue();
             checkRoom(response.getRoom());
@@ -78,7 +78,7 @@ public class ChatAcceptanceTest extends AcceptanceTest {
             TestClient anotherMember = createTestClient();
             anotherMember.loginSuccess(KAKAO_AUTH_ID + 1L);
 
-            GetChatRoomResponse response = anotherMember.getChatRoom(roomId, LATITUDE, LONGITUDE);
+            GetChatRoomResponse response = anotherMember.getChatRoomSuccess(roomId, LATITUDE, LONGITUDE);
             assertThat(response.getRoom().getId()).isEqualTo(roomId);
             assertThat(response.getIsChatter()).isFalse();
             checkRoom(response.getRoom());
@@ -95,7 +95,7 @@ public class ChatAcceptanceTest extends AcceptanceTest {
             TestClient anotherMember = createTestClient();
             anotherMember.loginSuccess(KAKAO_AUTH_ID + 1L);
 
-            ChatterResponse response = anotherMember.createChatter(roomId, new CreateChatterRequest("검은고양이", LATITUDE, LONGITUDE));
+            ChatterResponse response = anotherMember.createChatterSuccess(roomId, new CreateChatterRequest("검은고양이", LATITUDE, LONGITUDE));
             assertThat(response.getNickname()).isEqualTo("검은고양이");
             anotherMember.createChatSuccess(roomId, new CreateChatRequest("안녕하세요!", LATITUDE, LONGITUDE));
         }
@@ -106,10 +106,10 @@ public class ChatAcceptanceTest extends AcceptanceTest {
             ChatResponse chat1 = manager.createChatSuccess(roomId, new CreateChatRequest("안녕하세요 1", LATITUDE, LONGITUDE));
             TestClient anotherMember = createTestClient();
             anotherMember.loginSuccess(KAKAO_AUTH_ID + 1L);
-            anotherMember.createChatter(roomId, new CreateChatterRequest("검은고양이", LATITUDE, LONGITUDE));
+            anotherMember.createChatterSuccess(roomId, new CreateChatterRequest("검은고양이", LATITUDE, LONGITUDE));
             ChatResponse chat2 = anotherMember.createChatSuccess(roomId, new CreateChatRequest("안녕하세요 2", LATITUDE, LONGITUDE));
 
-            GetChatRoomResponse response = manager.getChatRoom(roomId, LATITUDE, LONGITUDE);
+            GetChatRoomResponse response = manager.getChatRoomSuccess(roomId, LATITUDE, LONGITUDE);
             assertThat(response.getRoom().getId()).isEqualTo(roomId);
             assertThat(response.getChats()).hasSize(2);
             assertThat(response.getChats().get(0).getId()).isEqualTo(chat2.getId());
@@ -117,13 +117,32 @@ public class ChatAcceptanceTest extends AcceptanceTest {
             assertThat(response.getChats().get(1).getId()).isEqualTo(chat1.getId());
             assertThat(response.getChats().get(1).getIsMine()).isTrue();
 
-            response = anotherMember.getChatRoom(roomId, LATITUDE, LONGITUDE);
+            response = anotherMember.getChatRoomSuccess(roomId, LATITUDE, LONGITUDE);
             assertThat(response.getRoom().getId()).isEqualTo(roomId);
             assertThat(response.getChats()).hasSize(2);
             assertThat(response.getChats().get(0).getId()).isEqualTo(chat2.getId());
             assertThat(response.getChats().get(0).getIsMine()).isTrue();
             assertThat(response.getChats().get(1).getId()).isEqualTo(chat1.getId());
             assertThat(response.getChats().get(1).getIsMine()).isFalse();
+        }
+
+        @DisplayName("채팅방 생성 위치로부터 너무 멀리 떨어지면 해당 채팅방과 상호작용할 수 없다")
+        @Test
+        void locationValidation() {
+            double tooFarLatitude = LATITUDE + 1;
+            ExtractableResponse<Response> response = manager.createChat(roomId, new CreateChatRequest("안녕하세요", tooFarLatitude, LONGITUDE));
+            assertThat(response.statusCode()).isEqualTo(HttpStatus.FORBIDDEN.value());
+
+            response = manager.getChatRoom(roomId, tooFarLatitude, LONGITUDE);
+            assertThat(response.statusCode()).isEqualTo(HttpStatus.FORBIDDEN.value());
+
+            response = manager.getChats(roomId, tooFarLatitude, LONGITUDE);
+            assertThat(response.statusCode()).isEqualTo(HttpStatus.FORBIDDEN.value());
+
+            TestClient anotherMember = createTestClient();
+            anotherMember.loginSuccess(KAKAO_AUTH_ID + 1L);
+            response = anotherMember.createChatter(roomId, new CreateChatterRequest("검은고양이", tooFarLatitude, LONGITUDE));
+            assertThat(response.statusCode()).isEqualTo(HttpStatus.FORBIDDEN.value());
         }
 
         private void checkRoom(ChatRoomResponse roomResponse) {
@@ -143,42 +162,42 @@ public class ChatAcceptanceTest extends AcceptanceTest {
 
         TestClient chatter = createTestClient();
         chatter.loginSuccess(KAKAO_AUTH_ID + 1L);
-        chatter.createChatter(roomId, new CreateChatterRequest("검은고양이", LATITUDE, LONGITUDE));
+        chatter.createChatterSuccess(roomId, new CreateChatterRequest("검은고양이", LATITUDE, LONGITUDE));
 
         ChatResponse chat1 = manager.createChatSuccess(roomId, new CreateChatRequest("안녕하세요 1", LATITUDE, LONGITUDE));
         ChatResponse chat2 = chatter.createChatSuccess(roomId, new CreateChatRequest("안녕하세요 2", LATITUDE, LONGITUDE));
 
-        List<ChatResponse> response = manager.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        List<ChatResponse> response = manager.getChatsSuccess(roomId, LATITUDE, LONGITUDE).getChats();
         assertThat(response).hasSize(2);
         assertThat(response.get(0).getId()).isEqualTo(chat2.getId());
         assertThat(response.get(0).getIsMine()).isFalse();
         assertThat(response.get(1).getId()).isEqualTo(chat1.getId());
         assertThat(response.get(1).getIsMine()).isTrue();
-        response = manager.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        response = manager.getChatsSuccess(roomId, LATITUDE, LONGITUDE).getChats();
         assertThat(response).hasSize(0);
 
-        response = chatter.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        response = chatter.getChatsSuccess(roomId, LATITUDE, LONGITUDE).getChats();
         assertThat(response).hasSize(2);
         assertThat(response.get(0).getId()).isEqualTo(chat2.getId());
         assertThat(response.get(0).getIsMine()).isTrue();
         assertThat(response.get(1).getId()).isEqualTo(chat1.getId());
         assertThat(response.get(1).getIsMine()).isFalse();
-        response = chatter.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        response = chatter.getChatsSuccess(roomId, LATITUDE, LONGITUDE).getChats();
         assertThat(response).hasSize(0);
 
         ChatResponse chat3 = manager.createChatSuccess(roomId, new CreateChatRequest("안녕하세요 3", LATITUDE, LONGITUDE));
-        response = manager.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        response = manager.getChatsSuccess(roomId, LATITUDE, LONGITUDE).getChats();
         assertThat(response).hasSize(1);
         assertThat(response.get(0).getId()).isEqualTo(chat3.getId());
         assertThat(response.get(0).getIsMine()).isTrue();
-        response = chatter.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        response = chatter.getChatsSuccess(roomId, LATITUDE, LONGITUDE).getChats();
         assertThat(response).hasSize(1);
         assertThat(response.get(0).getId()).isEqualTo(chat3.getId());
         assertThat(response.get(0).getIsMine()).isFalse();
 
         TestClient visitor = createTestClient();
         visitor.loginSuccess(KAKAO_AUTH_ID + 2L);
-        response = visitor.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        response = visitor.getChatsSuccess(roomId, LATITUDE, LONGITUDE).getChats();
         assertThat(response).hasSize(3);
         assertThat(response.get(0).getId()).isEqualTo(chat3.getId());
         assertThat(response.get(0).getIsMine()).isFalse();
@@ -197,7 +216,7 @@ public class ChatAcceptanceTest extends AcceptanceTest {
 
         TestClient chatter = createTestClient();
         chatter.loginSuccess(KAKAO_AUTH_ID + 1L);
-        chatter.createChatter(roomId, new CreateChatterRequest("검은고양이", LATITUDE, LONGITUDE));
+        chatter.createChatterSuccess(roomId, new CreateChatterRequest("검은고양이", LATITUDE, LONGITUDE));
 
         ChatResponse parentChat = manager.createChatSuccess(roomId, new CreateChatRequest("안녕하세요", LATITUDE, LONGITUDE));
         assertThat(parentChat.getParent()).isNull();
@@ -206,7 +225,7 @@ public class ChatAcceptanceTest extends AcceptanceTest {
         ChatResponse childChat2 = chatter.createChatSuccess(roomId, new CreateChatRequest("타인의 답장", parentChat.getId(), LATITUDE, LONGITUDE));
         assertThat(childChat2.getParent().getId()).isEqualTo(parentChat.getId());
 
-        List<ChatResponse> response = manager.getChats(roomId, LATITUDE, LONGITUDE).getChats();
+        List<ChatResponse> response = manager.getChatsSuccess(roomId, LATITUDE, LONGITUDE).getChats();
         assertThat(response).hasSize(3);
         assertThat(response.get(0).getId()).isEqualTo(childChat2.getId());
         assertThat(response.get(0).getContent()).isEqualTo("타인의 답장");
