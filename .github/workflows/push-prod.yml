@@ -38,7 +38,7 @@ jobs:
 
       - name: Build and push image
         env:
-          IMAGE_TAG: ${{ github.run_number }} # unique for each deployment
+          IMAGE_TAG: ${{ github.run_number }}
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           docker build --platform linux/amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . \
@@ -48,6 +48,6 @@ jobs:
                       --build-arg MYSQL_URL=${{ secrets.MYSQL_URL }}              \
                       --build-arg MYSQL_DB=${{ secrets.MYSQL_DB }}              \
                       --build-arg MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}              \
-                      --build-arg MYSQL_PASSWORD='${{ secrets.MYSQL_PASSWORD }}'              \
+                      --build-arg MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}              \
                       --build-arg TOO_CLOSE_LIMIT=${{ secrets.TOO_CLOSE_LIMIT }}
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
