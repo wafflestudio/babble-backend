@@ -22,7 +22,7 @@ TOO_CLOSE_LIMIT=500
 모든 빌드 작업이 매번 컨테이너 내부에서 이루어지므로 윈도우, M1 맥북 등 실행 환경에 영향을 받지 않지만 조금 느립니다.
 
 ```bash
-make docker_run_dev
+make docker_run_local
 ```
 
 ## API Document

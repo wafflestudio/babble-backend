@@ -1,9 +1,8 @@
-FROM openjdk:11-jdk-slim-sid
+FROM openjdk:11-jre-slim-buster
 
 RUN mkdir /babble-server
-ADD . /babble-server
+COPY ./build/libs/babble-0.0.1.jar /babble-server/
+
 WORKDIR /babble-server
 
-RUN	./gradlew build
-
-CMD ["nohup", "java", "-jar", "-Dspring.profiles.active=${PROFILE}", "-Dlocation.validation-limit=${TOO_CLOSE_LIMIT}", "/babble-server/build/libs/babble-0.0.1.jar", "&"]
+CMD ["nohup", "java", "-jar", "-Dspring.profiles.active=${PROFILE}", "-DJWT_SECRET_KEY=${JWT-SECRET-KEY}", "-DJWT_VALIDITY=${JWT-VALIDITY}", "-DMYSQL_URL=${MYSQL-URL}", "-DMYSQL_DB=${MYSQL-DB}", "-DMYSQL_USERNAME=${MYSQL-USERNAME}", "-DMYSQL_PASSWORD=${MYSQL-PASSWORD}", "-DLOCATION_VALIDATION_LIMIT=${TOO-CLOSE-LIMIT}", "/babble-server/babble-0.0.1.jar", "&"]
