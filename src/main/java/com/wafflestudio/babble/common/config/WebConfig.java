@@ -13,7 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(final CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedOrigins("*")
+            .allowedOrigins("http://localhost:5173/", "https://babble-web.vercel.app/")
             .allowedMethods(ALLOWED_METHOD_NAMES.split(","))
             .exposedHeaders(HttpHeaders.LOCATION);
     }
