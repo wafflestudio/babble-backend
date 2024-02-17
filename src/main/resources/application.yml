@@ -39,6 +39,12 @@ spring:
     hikari:
       maximum-pool-size: 10
       connection-timeout: 3000
+server:
+  tomcat:
+    threads:
+      max: 10
+    accept-count: 10
+  shutdown: graceful
 auth:
   jwt:
     secret-key: ${JWT_SECRET_KEY}
