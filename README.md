@@ -2,7 +2,7 @@
 
 ## Setup
 
-프로젝트 저장소를 클론합니다. Gradle 기반 프로젝트이므로 IntelliJ를 사용한다면 build.gradle 파일을 선택하여 프로젝트를 실행합니다.
+프로젝트 저장소를 clone 받습니다. Gradle 기반 프로젝트이므로 IntelliJ를 사용한다면 build.gradle 파일을 선택하여 프로젝트를 실행합니다.
 
 ```bash
 git clone https://github.com/wafflestudio/babble-server
@@ -14,10 +14,12 @@ git clone https://github.com/wafflestudio/babble-server
 
 ```
 PROFILE=dev
+TOO_CLOSE_LIMIT=500
 ```
 
 [Docker Desktop](https://www.docker.com/products/docker-desktop/)을 설치하고 실행합니다.
-아래 make 명령어를 통해 도커 이미지를 하나 빌드하고 컨테이너를 실행합니다. 필요에 따라 docker 명령어들에 --platform 옵션을 추가해줍니다.
+아래 make 명령어를 통해 도커 이미지를 하나 빌드하고 컨테이너를 실행합니다.
+모든 빌드 작업이 매번 컨테이너 내부에서 이루어지므로 윈도우, M1 맥북 등 실행 환경에 영향을 받지 않지만 조금 느립니다.
 
 ```bash
 make docker_run_dev
