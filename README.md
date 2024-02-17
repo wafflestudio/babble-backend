@@ -14,12 +14,12 @@ git clone https://github.com/wafflestudio/babble-server
 
 ```
 PROFILE=dev
-TOO_CLOSE_LIMIT=500
+JWT-VALIDITY=3600000
 ```
 
 [Docker Desktop](https://www.docker.com/products/docker-desktop/)을 설치하고 실행합니다.
 아래 make 명령어를 통해 도커 이미지를 하나 빌드하고 컨테이너를 실행합니다.
-모든 빌드 작업이 매번 컨테이너 내부에서 이루어지므로 윈도우, M1 맥북 등 실행 환경에 영향을 받지 않지만 조금 느립니다.
+기본적으로 M1 맥북을 기준으로 빌드됩니다.
 
 ```bash
 make docker_run_local
