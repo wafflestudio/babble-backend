@@ -14,7 +14,7 @@ class NicknameTest {
 
     @ParameterizedTest
     @DisplayName("1~15글자 사이의 한글, 숫자, 영문자로 구성된 닉네임은 가능하다.")
-    @ValueSource(strings = {"a", "가aB1", "열다섯글자ABCDE12345"})
+    @ValueSource(strings = {"가aB1", "a", "ㅇ", "ㅏ", "ㅣ", "띄어쓰기 허용", "열다섯글자ABCDE12345"})
     void success(String nickname) {
         assertThatNoException().isThrownBy(() -> new Nickname(nickname));
     }
@@ -27,9 +27,9 @@ class NicknameTest {
     }
 
     @Test
-    @DisplayName("공백이 포함된 닉네임은 예외를 발생시킨다.")
+    @DisplayName("공백만으로 구성된 닉네임은 예외를 발생시킨다.")
     void hasBlank() {
-        assertThatThrownBy(() -> new Nickname("정 진우"))
+        assertThatThrownBy(() -> new Nickname("   "))
             .isInstanceOf(BadRequestException.class);
     }
 }
